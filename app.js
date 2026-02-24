@@ -270,6 +270,9 @@ async function fetchFOGOPrice(rpcUrl) {
         const price = parseFloat(pair.priceUsd);
         console.log('FOGO Price from Valiant/DexScreener:', price);
         addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (Valiant)`);
+        // Update input to show the fetched price
+        const priceInput = document.getElementById('fogo-price-input');
+        if (priceInput) priceInput.value = price.toFixed(4);
         return price;
       }
     }
@@ -288,6 +291,9 @@ async function fetchFOGOPrice(rpcUrl) {
         const price = parseFloat(data.pair.priceUsd);
         console.log('FOGO Price from Valiant/DexScreener:', price);
         addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (Valiant)`);
+        // Update input to show the fetched price
+        const priceInput = document.getElementById('fogo-price-input');
+        if (priceInput) priceInput.value = price.toFixed(4);
         return price;
       }
     }
