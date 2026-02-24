@@ -238,7 +238,7 @@ function hideError() {
 function setLoading(loading, text = 'Fetching...') {
   fetchBtn.disabled = loading;
   spinner.classList.toggle('hidden', !loading);
-  btnText.textContent = text;
+  btnText.textContent = loading ? text : '📊 Fetch Volume Data';
 }
 
 function updateProgress(checked, found, total) {
