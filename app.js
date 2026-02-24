@@ -248,116 +248,44 @@ function updateProgress(checked, found, total) {
   btnText.textContent = `⚡ ${percent}% | ${checked} checked | ${found} swaps found`;
 }
 
-// Fetch FOGO price from on-chain pool data
+// Fetch FOGO price from CoinGecko or user input
 async function fetchFOGOPrice(rpcUrl) {
-  try {
-    const FOGO_USDC_POOL = 'J7mxBLSz51Tcbog3XsiJTAXS64N46KqbpRGQmd3dQMKp';
-    
-    const response = await fetchWithTimeout(rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getAccountInfo',
-        params: [FOGO_USDC_POOL, { encoding: 'base64' }]
-      })
-    }, 3000); // 3 second timeout for price fetch
-    
-    if (!response.ok) {
-      console.log('Failed to fetch pool data, using fallback price');
-      return 0.027;
+  // First check if user provided a price
+  const priceInput = document.getElementById('fogo-price-input');
+  if (priceInput) {
+    const userPrice = parseFloat(priceInput.value);
+    if (!isNaN(userPrice) && userPrice > 0) {
+      console.log('Using user FOGO price:', userPrice);
+      addLogEntry('info', `💰 FOGO Price: $${userPrice.toFixed(4)} USDC (user)`);
+      return userPrice;
     }
-    
-    const data = await response.json();
-    console.log('Pool data response:', data);
-    if (!data.result?.value?.data?.[0]) {
-      console.log('No pool data, using fallback price');
-      addLogEntry('info', '⚠️ No pool data, using fallback price $0.027');
-      return 0.027;
-    }
-    
-    // Parse Vortex pool data
-    const base64Data = data.result.value.data[0];
-    const binary = atob(base64Data);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    
-    console.log('Pool data length:', bytes.length, 'bytes');
-    console.log('First 64 bytes (hex):', Array.from(bytes.slice(0, 64)).map(b => b.toString(16).padStart(2, '0')).join(' '));
-    
-    // Try multiple offsets to find sqrt_price_x64
-    // Try both little-endian and big-endian
-    const offsets = [136, 144, 152, 156, 160, 168];
-    let priceInUsd = 0.027;
-    let foundValidPrice = false;
-    
-    for (const offset of offsets) {
-      if (offset + 16 > bytes.length) continue;
-      
-      // Read as little-endian u128
-      let sqrtPriceX64_LE = 0n;
-      for (let i = 0; i < 16; i++) {
-        sqrtPriceX64_LE |= BigInt(bytes[offset + i]) << BigInt(i * 8);
-      }
-      
-      // Read as big-endian u128
-      let sqrtPriceX64_BE = 0n;
-      for (let i = 0; i < 16; i++) {
-        sqrtPriceX64_BE |= BigInt(bytes[offset + i]) << BigInt((15 - i) * 8);
-      }
-      
-      // Skip if all zeros
-      if (sqrtPriceX64_LE === 0n && sqrtPriceX64_BE === 0n) continue;
-      
-      // Test little-endian
-      if (sqrtPriceX64_LE > 0n) {
-        const sqrtPrice = Number(sqrtPriceX64_LE) / (2 ** 64);
-        const rawPrice = sqrtPrice * sqrtPrice;
-        const testPrice = rawPrice * 1000;
-        if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
-          priceInUsd = testPrice;
-          foundValidPrice = true;
-          console.log(`✅ LE Offset ${offset}: price=$${testPrice.toFixed(6)}`);
-        }
-      }
-      
-      // Test big-endian
-      if (sqrtPriceX64_BE > 0n && !foundValidPrice) {
-        const sqrtPrice = Number(sqrtPriceX64_BE) / (2 ** 64);
-        const rawPrice = sqrtPrice * sqrtPrice;
-        const testPrice = rawPrice * 1000;
-        if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
-          priceInUsd = testPrice;
-          foundValidPrice = true;
-          console.log(`✅ BE Offset ${offset}: price=$${testPrice.toFixed(6)}`);
-        }
-      }
-    }
-    
-    if (!foundValidPrice) {
-      console.log('No valid price found, using fallback $0.027');
-      addLogEntry('info', '⚠️ Cannot parse pool price, using fallback $0.027');
-      return 0.027;
-    }
-    
-    console.log('FOGO Price fetched:', priceInUsd.toFixed(6), 'USDC');
-    
-    // Validate price is reasonable (between $0.001 and $10)
-    if (priceInUsd > 0.001 && priceInUsd < 10) {
-      return priceInUsd;
-    }
-    
-    console.log('Price seems invalid, using fallback');
-    return 0.027;
-    
-  } catch (err) {
-    console.error('Error fetching FOGO price:', err);
-    addLogEntry('error', `⚠️ Price fetch failed: ${err.message}. Using fallback $0.027`);
-    return 0.027; // Fallback price
   }
+  
+  // Try CoinGecko API for FOGO price
+  try {
+    const response = await fetchWithTimeout(
+      'https://api.coingecko.com/api/v3/simple/price?ids=fogo&vs_currencies=usd',
+      {},
+      5000
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.fogo && data.fogo.usd) {
+        const price = data.fogo.usd;
+        console.log('FOGO Price from CoinGecko:', price);
+        addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (CoinGecko)`);
+        return price;
+      }
+    }
+  } catch (err) {
+    console.log('CoinGecko API failed:', err.message);
+  }
+  
+  // Fallback price
+  console.log('Using fallback FOGO price: 0.027');
+  addLogEntry('info', '💰 FOGO Price: $0.027 USDC (default)');
+  return 0.027;
 }
 
 async function fetchVolumeData() {
