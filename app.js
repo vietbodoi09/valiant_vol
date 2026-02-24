@@ -336,6 +336,9 @@ async function fetchVolumeData() {
   addLogEntry('info', '🚀 Starting fetch...');
   
   try {
+    // Show results section immediately so user can see progress
+    resultsSection.classList.remove('hidden');
+    
     const startTime = new Date(startDateInput.value).getTime() / 1000;
     const endTime = new Date(endDateInput.value).getTime() / 1000;
     const rpcUrl = rpcInput.value.trim() || 'https://mainnet.fogo.io/';
