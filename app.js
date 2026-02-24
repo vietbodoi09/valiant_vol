@@ -512,9 +512,20 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     // Calculate running net positions
     let fogoNet = 0, ifogoNet = 0;
     for (const tx of allSwaps) {
+      // FOGO as tokenA
       if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
         if (tx.direction === 'BtoA') fogoNet += tx.amountA; // Bought FOGO
         else fogoNet -= tx.amountA; // Sold FOGO
+      }
+      // FOGO as tokenB
+      if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
+        if (tx.direction === 'AtoB') fogoNet += tx.amountB; // Bought FOGO
+        else fogoNet -= tx.amountB; // Sold FOGO
+      }
+      // iFOGO tracking
+      if (tx.tokenA === 'iFOGO') {
+        if (tx.direction === 'BtoA') ifogoNet += tx.amountA; // Bought iFOGO
+        else ifogoNet -= tx.amountA; // Sold iFOGO
       }
       if (tx.tokenB === 'iFOGO') {
         if (tx.direction === 'AtoB') ifogoNet += tx.amountB; // Bought iFOGO
@@ -531,9 +542,15 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   // Calculate FOGO Net position (for Total FOGO Lost calculation)
   let fogoNetPosition = 0;
   for (const tx of allSwaps) {
+    // Check if FOGO is tokenA
     if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
-      if (tx.direction === 'BtoA') fogoNetPosition += tx.amountA; // Bought FOGO
-      else fogoNetPosition -= tx.amountA; // Sold FOGO
+      if (tx.direction === 'BtoA') fogoNetPosition += tx.amountA; // Bought FOGO (received tokenA)
+      else fogoNetPosition -= tx.amountA; // Sold FOGO (sent tokenA)
+    }
+    // Check if FOGO is tokenB
+    if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
+      if (tx.direction === 'AtoB') fogoNetPosition += tx.amountB; // Bought FOGO (received tokenB)
+      else fogoNetPosition -= tx.amountB; // Sold FOGO (sent tokenB)
     }
   }
   
