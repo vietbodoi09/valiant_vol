@@ -250,18 +250,7 @@ function updateProgress(checked, found, total) {
 
 // Fetch FOGO price from Valiant via DexScreener
 async function fetchFOGOPrice(rpcUrl) {
-  // First check if user provided a price
-  const priceInput = document.getElementById('fogo-price-input');
-  if (priceInput) {
-    const userPrice = parseFloat(priceInput.value);
-    if (!isNaN(userPrice) && userPrice > 0) {
-      console.log('Using user FOGO price:', userPrice);
-      addLogEntry('info', `💰 FOGO Price: $${userPrice.toFixed(4)} USDC (user)`);
-      return userPrice;
-    }
-  }
-  
-  // Try DexScreener for Valiant pool price
+  // Try DexScreener for Valiant pool price first
   try {
     const FOGO_USDC_POOL = 'J7mxBLSz51Tcbog3XsiJTAXS64N46KqbpRGQmd3dQMKp';
     
@@ -304,6 +293,17 @@ async function fetchFOGOPrice(rpcUrl) {
     }
   } catch (err) {
     console.log('DexScreener API failed:', err.message);
+  }
+  
+  // Check if user provided a custom price
+  const priceInput = document.getElementById('fogo-price-input');
+  if (priceInput) {
+    const userPrice = parseFloat(priceInput.value);
+    if (!isNaN(userPrice) && userPrice > 0) {
+      console.log('Using user FOGO price:', userPrice);
+      addLogEntry('info', `💰 FOGO Price: $${userPrice.toFixed(4)} USDC (user)`);
+      return userPrice;
+    }
   }
   
   // Fallback price
