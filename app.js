@@ -270,8 +270,10 @@ async function fetchFOGOPrice(rpcUrl) {
     }
     
     const data = await response.json();
+    console.log('Pool data response:', data);
     if (!data.result?.value?.data?.[0]) {
       console.log('No pool data, using fallback price');
+      addLogEntry('info', '⚠️ No pool data, using fallback price $0.027');
       return 0.027;
     }
     
@@ -314,6 +316,7 @@ async function fetchFOGOPrice(rpcUrl) {
     
   } catch (err) {
     console.error('Error fetching FOGO price:', err);
+    addLogEntry('error', `⚠️ Price fetch failed: ${err.message}. Using fallback $0.027`);
     return 0.027; // Fallback price
   }
 }
