@@ -568,6 +568,7 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     totalFogoVolume,
     totalUsdVolume,
     totalFogoLoss: totalFogoLost,  // Now includes both fees and net position
+    fogoNetPosition,
     poolVolumes,
     transactions: allSwaps.sort((a, b) => b.timestamp - a.timestamp)
   };
@@ -823,7 +824,8 @@ function displayResults(data) {
   const avgSwapEl = document.getElementById('ifogo-buy-volume');
   const lossEl = document.getElementById('fogo-loss');
   
-  console.log('Display Results:', {totalUsd: data.totalUsdVolume, fogoVol: data.totalFogoVolume, swaps: data.totalSwaps, loss: data.totalFogoLoss});
+  console.log('Display Results:', {totalUsd: data.totalUsdVolume, fogoVol: data.totalFogoVolume, swaps: data.totalSwaps, loss: data.totalFogoLoss, fogoNet: data.fogoNetPosition});
+  console.log('Sample transactions:', data.transactions.slice(0, 3).map(t => ({pool: t.pool, dir: t.direction, tokenA: t.tokenA, amountA: t.amountA, tokenB: t.tokenB, amountB: t.amountB, fogoVol: t.fogoVolume})));
   if (totalUsdEl) totalUsdEl.textContent = `$${(data.totalUsdVolume || 0).toFixed(2)}`;
   if (fogoVolEl) fogoVolEl.textContent = (data.totalFogoVolume || 0).toFixed(4);
   if (avgSwapEl) avgSwapEl.textContent = data.totalSwaps > 0 ? (data.totalFogoVolume / data.totalSwaps).toFixed(4) : '0.0000';
