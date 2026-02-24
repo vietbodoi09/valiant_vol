@@ -1,5 +1,6 @@
-// Valiant DEX Volume Tracker - FIXED VERSION
+// Valiant DEX Volume Tracker - DEPLOYED VERSION
 // Tracks ALL swap volume with correct price and pool detection
+// GitHub: https://github.com/vietbodoi09/valiant_vol
 
 // All Valiant Pools with vault addresses (from transaction analysis)
 const VALIANT_POOLS = {
