@@ -278,8 +278,10 @@ async function fetchFOGOPrice(rpcUrl) {
     }
     
     // Parse Vortex pool data
-    // Pool layout: https://github.com/valiant-defi/anchor/blob/main/programs/vortex/src/state/pool.rs
-    // sqrt_price_x64 is at offset 145 (after discriminator + other fields)
+    // Anchor account layout: 8 bytes discriminator + data
+    // Pool structure: token_mint_a(32) + token_mint_b(32) + token_vault_a(32) + token_vault_b(32) 
+    //                 + fee_rate(2) + tick_spacing(2) + liquidity(16) + sqrt_price_x64(16) + ...
+    // sqrt_price_x64 offset = 8 + 32*4 + 2 + 2 + 16 = 8 + 128 + 20 = 156
     const base64Data = data.result.value.data[0];
     const binary = atob(base64Data);
     const bytes = new Uint8Array(binary.length);
@@ -287,21 +289,22 @@ async function fetchFOGOPrice(rpcUrl) {
       bytes[i] = binary.charCodeAt(i);
     }
     
-    // sqrt_price_x64: 16 bytes at offset 145
-    // u128 little-endian
-    const offset = 145;
+    // sqrt_price_x64: 16 bytes at offset 156
+    // u128 little-endian (Rust default)
+    const offset = 156;
     let sqrtPriceX64 = 0n;
     for (let i = 0; i < 16; i++) {
       sqrtPriceX64 |= BigInt(bytes[offset + i]) << BigInt(i * 8);
     }
     
     // Calculate price: (sqrtPriceX64 / 2^64)^2
-    // This gives raw price in tokenB/tokenA (USDC/FOGO)
+    // This gives price in tokenB/tokenA (USDC/FOGO)
     const sqrtPrice = Number(sqrtPriceX64) / (2 ** 64);
     const rawPrice = sqrtPrice * sqrtPrice;
     
     // Adjust for decimals: FOGO has 9 decimals, USDC has 6
-    // Price in USD = rawPrice * 10^(9-6) = rawPrice * 1000
+    // rawPrice is in USDC/FOGO with decimals difference
+    // Need to multiply by 10^(9-6) = 1000 to get actual USD price
     const priceInUsd = rawPrice * 1000;
     
     console.log('FOGO Price fetched:', priceInUsd.toFixed(6), 'USDC');
