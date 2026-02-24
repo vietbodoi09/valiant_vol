@@ -248,7 +248,7 @@ function updateProgress(checked, found, total) {
   btnText.textContent = `⚡ ${percent}% | ${checked} checked | ${found} swaps found`;
 }
 
-// Fetch FOGO price from CoinGecko or user input
+// Fetch FOGO price from Valiant via DexScreener
 async function fetchFOGOPrice(rpcUrl) {
   // First check if user provided a price
   const priceInput = document.getElementById('fogo-price-input');
@@ -261,25 +261,27 @@ async function fetchFOGOPrice(rpcUrl) {
     }
   }
   
-  // Try CoinGecko API for FOGO price
+  // Try DexScreener for Valiant pool price
   try {
+    const FOGO_USDC_POOL = 'J7mxBLSz51Tcbog3XsiJTAXS64N46KqbpRGQmd3dQMKp';
     const response = await fetchWithTimeout(
-      'https://api.coingecko.com/api/v3/simple/price?ids=fogo&vs_currencies=usd',
+      `https://api.dexscreener.com/latest/dex/pairs/fogo/${FOGO_USDC_POOL}`,
       {},
       5000
     );
     
     if (response.ok) {
       const data = await response.json();
-      if (data.fogo && data.fogo.usd) {
-        const price = data.fogo.usd;
-        console.log('FOGO Price from CoinGecko:', price);
-        addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (CoinGecko)`);
+      console.log('DexScreener response:', data);
+      if (data.pair && data.pair.priceUsd) {
+        const price = parseFloat(data.pair.priceUsd);
+        console.log('FOGO Price from Valiant/DexScreener:', price);
+        addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (Valiant)`);
         return price;
       }
     }
   } catch (err) {
-    console.log('CoinGecko API failed:', err.message);
+    console.log('DexScreener API failed:', err.message);
   }
   
   // Fallback price
