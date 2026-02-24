@@ -264,7 +264,29 @@ async function fetchFOGOPrice(rpcUrl) {
   // Try DexScreener for Valiant pool price
   try {
     const FOGO_USDC_POOL = 'J7mxBLSz51Tcbog3XsiJTAXS64N46KqbpRGQmd3dQMKp';
-    const response = await fetchWithTimeout(
+    
+    // Try token-pools endpoint first
+    let response = await fetchWithTimeout(
+      `https://api.dexscreener.com/token-pools/v1/fogo/So11111111111111111111111111111111111111112`,
+      {},
+      5000
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('DexScreener token-pools response:', data);
+      // Find the FOGO-USDC pair
+      const pair = data.find(p => p.pairAddress === FOGO_USDC_POOL);
+      if (pair && pair.priceUsd) {
+        const price = parseFloat(pair.priceUsd);
+        console.log('FOGO Price from Valiant/DexScreener:', price);
+        addLogEntry('info', `💰 FOGO Price: $${price.toFixed(4)} USDC (Valiant)`);
+        return price;
+      }
+    }
+    
+    // Fallback to pairs endpoint
+    response = await fetchWithTimeout(
       `https://api.dexscreener.com/latest/dex/pairs/fogo/${FOGO_USDC_POOL}`,
       {},
       5000
@@ -272,7 +294,7 @@ async function fetchFOGOPrice(rpcUrl) {
     
     if (response.ok) {
       const data = await response.json();
-      console.log('DexScreener response:', data);
+      console.log('DexScreener pairs response:', data);
       if (data.pair && data.pair.priceUsd) {
         const price = parseFloat(data.pair.priceUsd);
         console.log('FOGO Price from Valiant/DexScreener:', price);
