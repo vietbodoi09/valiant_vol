@@ -242,6 +242,8 @@ function setLoading(loading, text = 'Fetching...') {
 }
 
 function updateProgress(checked, found, total) {
+  // Only update if still loading
+  if (!fetchBtn.disabled) return;
   const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
   btnText.textContent = `⚡ ${percent}% | ${checked} checked | ${found} swaps found`;
 }
