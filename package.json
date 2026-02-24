@@ -1,0 +1,19 @@
+{
+  "name": "valiant-volume-tracker",
+  "version": "1.0.0",
+  "description": "Track ALL swap volumes across Valiant DEX pools on Fogo chain",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": [
+    "valiant",
+    "dex",
+    "volume",
+    "tracker",
+    "fogo",
+    "solana"
+  ],
+  "author": "",
+  "license": "MIT"
+}

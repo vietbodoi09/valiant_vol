@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track ALL swap volumes across Valiant DEX pools on Fogo chain">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Valiant Volume Tracker - Fogo DEX Analytics</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- LEFT PANEL: Main Content -->
+    <div class="main-panel">
+      <header>
+        <div class="logo">
+          <div class="logo-icon">📊</div>
+          <div>
+            <h1>Valiant Volume Tracker</h1>
+            <p>Track ALL swap volumes across Valiant DEX pools</p>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- Search Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🔍 Search Filters</h2>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="wallet-address">Wallet Address</label>
+              <input type="text" id="wallet-address" placeholder="Enter Solana wallet address..." autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+              <label for="start-date">Start Date</label>
+              <input type="datetime-local" id="start-date">
+            </div>
+            
+            <div class="form-group">
+              <label for="end-date">End Date</label>
+              <input type="datetime-local" id="end-date">
+            </div>
+            
+            <div class="form-group full-width">
+              <label for="rpc-url">RPC Endpoint</label>
+              <input type="text" id="rpc-url" value="https://mainnet.fogo.io/" placeholder="https://mainnet.fogo.io/">
+            </div>
+          </div>
+
+          <button id="fetch-btn" class="btn-primary">
+            <span class="spinner hidden"></span>
+            <span class="btn-text">📊 Fetch Volume Data</span>
+          </button>
+          
+          <div id="error" class="error hidden"></div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden">
+          <!-- Price Banner -->
+          <div class="price-banner">
+            <span class="live-indicator"></span>
+            💰 FOGO Price: <span id="fogo-price-display">$0.0000</span> USDC
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-value" id="total-volume-usd">$0.00</div>
+              <div class="stat-label">Total Volume (USD)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🔄</div>
+              <div class="stat-value" id="total-swaps">0</div>
+              <div class="stat-label">Total Swaps</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div class="stat-value" id="fogo-sell-volume">0.0000</div>
+              <div class="stat-label">Total FOGO Volume</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⚠️</div>
+              <div class="stat-value" id="fogo-loss">0.0000</div>
+              <div class="stat-label">FOGO Loss</div>
+            </div>
+          </div>
+
+          <!-- Pool Breakdown -->
+          <div class="card breakdown">
+            <div class="card-header flex">
+              <h2>📊 Volume by Pool</h2>
+              <div class="export-actions">
+                <button id="export-csv" class="btn-secondary">⬇ Export CSV</button>
+                <button id="export-json" class="btn-secondary">⬇ Export JSON</button>
+              </div>
+            </div>
+            
+            <div class="table-container" id="pool-breakdown">
+              <!-- Pool breakdown table will be inserted here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Supported Pools -->
+        <div class="card supported-pools">
+          <div class="card-header">
+            <h2>🏊 Supported Pools</h2>
+          </div>
+          <div class="pools-grid">
+            <div class="pool-tag active">FOGO-iFOGO</div>
+            <div class="pool-tag active">wFOGO-iFOGO</div>
+            <div class="pool-tag">FOGO-USDC</div>
+            <div class="pool-tag">FOGO-stFOGO</div>
+            <div class="pool-tag">USDC-FISH</div>
+            <div class="pool-tag">USDC-wSOL</div>
+            <div class="pool-tag">FOGO-CHASE</div>
+            <div class="pool-tag">FOGO-FISH Classic</div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>Valiant Volume Tracker • Live transaction monitoring • Built with ❤️</p>
+      </footer>
+    </div>
+
+    <!-- RIGHT PANEL: Live Log -->
+    <div class="log-panel">
+      <div class="log-header">
+        <span class="log-title">
+          <span class="live-indicator"></span>
+          Live Transactions
+        </span>
+        <span class="log-counter" id="log-counter">0 txs</span>
+      </div>
+      <div class="log-content" id="log-content">
+        <div class="log-empty">Click "Fetch Volume Data" to start monitoring...</div>
+      </div>
+      <div class="log-stats">
+        <div class="log-stat">
+          <span class="label">Found</span>
+          <span class="value" id="log-found">0</span>
+        </div>
+        <div class="log-stat">
+          <span class="label">FOGO Net</span>
+          <span class="value" id="log-fogo">0</span>
+        </div>
+        <div class="log-stat">
+          <span class="label">iFOGO Net</span>
+          <span class="value" id="log-loss">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
