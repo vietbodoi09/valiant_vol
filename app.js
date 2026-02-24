@@ -289,8 +289,7 @@ async function fetchFOGOPrice(rpcUrl) {
     console.log('First 64 bytes (hex):', Array.from(bytes.slice(0, 64)).map(b => b.toString(16).padStart(2, '0')).join(' '));
     
     // Try multiple offsets to find sqrt_price_x64
-    // Based on Anchor layout: discriminator(8) + mint_a(32) + mint_b(32) + vault_a(32) + vault_b(32) + fee(2) + tick_spacing(2) + liquidity(16) + sqrt_price(16)
-    // = 8 + 128 + 2 + 2 + 16 = 156, but let's try 136 (after liquidity)
+    // Try both little-endian and big-endian
     const offsets = [136, 144, 152, 156, 160, 168];
     let priceInUsd = 0.027;
     let foundValidPrice = false;
@@ -299,31 +298,48 @@ async function fetchFOGOPrice(rpcUrl) {
       if (offset + 16 > bytes.length) continue;
       
       // Read as little-endian u128
-      let sqrtPriceX64 = 0n;
+      let sqrtPriceX64_LE = 0n;
       for (let i = 0; i < 16; i++) {
-        sqrtPriceX64 |= BigInt(bytes[offset + i]) << BigInt(i * 8);
+        sqrtPriceX64_LE |= BigInt(bytes[offset + i]) << BigInt(i * 8);
       }
       
-      // Skip if all zeros or all ones
-      if (sqrtPriceX64 === 0n || sqrtPriceX64 === (1n << 128n) - 1n) continue;
+      // Read as big-endian u128
+      let sqrtPriceX64_BE = 0n;
+      for (let i = 0; i < 16; i++) {
+        sqrtPriceX64_BE |= BigInt(bytes[offset + i]) << BigInt((15 - i) * 8);
+      }
       
-      // Calculate price
-      const sqrtPrice = Number(sqrtPriceX64) / (2 ** 64);
-      const rawPrice = sqrtPrice * sqrtPrice;
-      const testPrice = rawPrice * 1000; // Adjust for decimals
+      // Skip if all zeros
+      if (sqrtPriceX64_LE === 0n && sqrtPriceX64_BE === 0n) continue;
       
-      console.log(`Offset ${offset}: sqrtPriceX64=${sqrtPriceX64.toString(16)}, price=$${testPrice.toFixed(6)}`);
+      // Test little-endian
+      if (sqrtPriceX64_LE > 0n) {
+        const sqrtPrice = Number(sqrtPriceX64_LE) / (2 ** 64);
+        const rawPrice = sqrtPrice * sqrtPrice;
+        const testPrice = rawPrice * 1000;
+        if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
+          priceInUsd = testPrice;
+          foundValidPrice = true;
+          console.log(`✅ LE Offset ${offset}: price=$${testPrice.toFixed(6)}`);
+        }
+      }
       
-      // Check if this is a reasonable price
-      if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
-        priceInUsd = testPrice;
-        foundValidPrice = true;
+      // Test big-endian
+      if (sqrtPriceX64_BE > 0n && !foundValidPrice) {
+        const sqrtPrice = Number(sqrtPriceX64_BE) / (2 ** 64);
+        const rawPrice = sqrtPrice * sqrtPrice;
+        const testPrice = rawPrice * 1000;
+        if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
+          priceInUsd = testPrice;
+          foundValidPrice = true;
+          console.log(`✅ BE Offset ${offset}: price=$${testPrice.toFixed(6)}`);
+        }
       }
     }
     
     if (!foundValidPrice) {
-      console.log('No valid price found, using fallback');
-      addLogEntry('info', '⚠️ Cannot parse price, using fallback $0.027');
+      console.log('No valid price found, using fallback $0.027');
+      addLogEntry('info', '⚠️ Cannot parse pool price, using fallback $0.027');
       return 0.027;
     }
     
