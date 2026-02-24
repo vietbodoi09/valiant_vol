@@ -557,11 +557,10 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   for (const swap of allSwaps) {
     totalFogoVolume += swap.fogoVolume || 0;
     totalUsdVolume += swap.usdVolume || 0;
-    totalFogoLoss += swap.fogoLoss || 0;
   }
   
-  // Total FOGO Lost = Pool fees + Net position loss (if negative)
-  const totalFogoLost = totalFogoLoss + Math.abs(fogoNetPosition);
+  // Total FOGO Lost = Net position loss (đã bao gồm phí và slippage)
+  const totalFogoLost = Math.abs(fogoNetPosition);
   
   return {
     totalSwaps: allSwaps.length,
