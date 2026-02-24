@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0b0d14">
   <title>Valiant Volume Tracker - Fogo DEX Analytics</title>
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjZiMzUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjQ1MDAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cG9seWdvbiBwb2ludHM9IjUwLDUgOTUsNTAgNTAsOTUgNSw1MCIgZmlsbD0idXJsKCNnKSIvPjxwb2x5Z29uIHBvaW50cz0iNTAsNSA3Miw1MCA1MCw5NSAyOCw1MCIgZmlsbD0iIzBiMGQxNCIvPjwvc3ZnPg==">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,8 +22,8 @@
   --bg-secondary: #11141d;
   --bg-card: #161922;
   --bg-card-hover: #1c202b;
-  --accent-primary: #00d4aa;
-  --accent-primary-dim: rgba(0, 212, 170, 0.1);
+  --accent-primary: #ff6b35;
+  --accent-primary-dim: rgba(255, 107, 53, 0.15);
   --accent-secondary: #6366f1;
   --accent-danger: #ef4444;
   --accent-danger-dim: rgba(239, 68, 68, 0.1);
@@ -73,11 +73,15 @@ header { margin-bottom: 2rem; }
 
 .logo-icon {
   width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, #ff6b35, #ff4500);
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-size: 24px;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+  position: relative;
+}
+.logo-icon svg {
+  width: 32px; height: 32px;
 }
 
 .logo h1 {
@@ -305,7 +309,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
     <div class="main-panel">
       <header>
         <div class="logo">
-          <div class="logo-icon">📊</div>
+          <div class="logo-icon"><svg viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" fill="white"/><polygon points="50,5 72,50 50,95 28,50" fill="#ff6b35"/></svg></div>
           <div>
             <h1>Valiant Volume Tracker</h1>
             <p>Track ALL swap volumes across Valiant DEX pools</p>
