@@ -49,14 +49,52 @@ body {
   line-height: 1.5;
 }
 
+/* Mystical Valiant Background */
 body::before {
   content: '';
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at 20% 20%, rgba(0, 212, 170, 0.03) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 80%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
+  background: 
+    /* Center golden glow - like the portal in the image */
+    radial-gradient(ellipse at 50% 60%, rgba(255, 140, 0, 0.15) 0%, transparent 50%),
+    /* Upper swirl effect */
+    radial-gradient(ellipse at 50% 20%, rgba(255, 180, 50, 0.12) 0%, transparent 40%),
+    /* Orange side glows */
+    radial-gradient(ellipse at 10% 70%, rgba(255, 100, 30, 0.1) 0%, transparent 35%),
+    radial-gradient(ellipse at 90% 70%, rgba(255, 80, 20, 0.1) 0%, transparent 35%),
+    /* Deep corners */
+    radial-gradient(ellipse at 0% 100%, rgba(139, 50, 0, 0.08) 0%, transparent 30%),
+    radial-gradient(ellipse at 100% 100%, rgba(100, 30, 0, 0.08) 0%, transparent 30%),
+    /* Subtle top aurora */
+    radial-gradient(ellipse at 50% 0%, rgba(255, 200, 100, 0.05) 0%, transparent 25%);
   pointer-events: none;
   z-index: 0;
+}
+
+/* Animated particle overlay for magical effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 180, 60, 0.15) 0%, transparent 2px),
+    radial-gradient(circle at 80% 20%, rgba(255, 140, 40, 0.12) 0%, transparent 3px),
+    radial-gradient(circle at 40% 70%, rgba(255, 200, 80, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 60% 50%, rgba(255, 160, 50, 0.08) 0%, transparent 2px),
+    radial-gradient(circle at 90% 80%, rgba(255, 120, 30, 0.1) 0%, transparent 3px),
+    radial-gradient(circle at 10% 60%, rgba(255, 180, 70, 0.08) 0%, transparent 2px);
+  background-size: 300px 300px;
+  animation: floatParticles 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+@keyframes floatParticles {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-10px) translateX(5px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(-15px) translateX(3px); }
 }
 
 .app-container { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
