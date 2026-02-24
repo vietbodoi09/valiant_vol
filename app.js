@@ -484,18 +484,31 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   
   let totalFogoVolume = 0;
   let totalUsdVolume = 0;
-  let totalFogoLoss = 0;  // Total FOGO loss from all swaps
+  let totalFogoLoss = 0;  // Total FOGO loss from pool fees
+  
+  // Calculate FOGO Net position (for Total FOGO Lost calculation)
+  let fogoNetPosition = 0;
+  for (const tx of allSwaps) {
+    if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
+      if (tx.direction === 'BtoA') fogoNetPosition += tx.amountA; // Bought FOGO
+      else fogoNetPosition -= tx.amountA; // Sold FOGO
+    }
+  }
+  
   for (const swap of allSwaps) {
     totalFogoVolume += swap.fogoVolume || 0;
     totalUsdVolume += swap.usdVolume || 0;
     totalFogoLoss += swap.fogoLoss || 0;
   }
   
+  // Total FOGO Lost = Pool fees + Net position loss (if negative)
+  const totalFogoLost = totalFogoLoss + Math.abs(fogoNetPosition);
+  
   return {
     totalSwaps: allSwaps.length,
     totalFogoVolume,
     totalUsdVolume,
-    totalFogoLoss,
+    totalFogoLoss: totalFogoLost,  // Now includes both fees and net position
     poolVolumes,
     transactions: allSwaps.sort((a, b) => b.timestamp - a.timestamp)
   };
