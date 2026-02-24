@@ -1,16 +1,8 @@
 {
   "version": 2,
   "name": "valiant-volume-tracker",
-  "builds": [
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    }
-  ],
+  "public": true,
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
