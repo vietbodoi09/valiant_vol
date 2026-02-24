@@ -748,6 +748,7 @@ function displayResults(data) {
   const avgSwapEl = document.getElementById('ifogo-buy-volume');
   const lossEl = document.getElementById('fogo-loss');
   
+  console.log('Display Results:', {totalUsd: data.totalUsdVolume, fogoVol: data.totalFogoVolume, swaps: data.totalSwaps, loss: data.totalFogoLoss});
   if (totalUsdEl) totalUsdEl.textContent = `$${(data.totalUsdVolume || 0).toFixed(2)}`;
   if (fogoVolEl) fogoVolEl.textContent = (data.totalFogoVolume || 0).toFixed(4);
   if (avgSwapEl) avgSwapEl.textContent = data.totalSwaps > 0 ? (data.totalFogoVolume / data.totalSwaps).toFixed(4) : '0.0000';
