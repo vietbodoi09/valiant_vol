@@ -278,10 +278,6 @@ async function fetchFOGOPrice(rpcUrl) {
     }
     
     // Parse Vortex pool data
-    // Anchor account layout: 8 bytes discriminator + data
-    // Pool structure: token_mint_a(32) + token_mint_b(32) + token_vault_a(32) + token_vault_b(32) 
-    //                 + fee_rate(2) + tick_spacing(2) + liquidity(16) + sqrt_price_x64(16) + ...
-    // sqrt_price_x64 offset = 8 + 32*4 + 2 + 2 + 16 = 8 + 128 + 20 = 156
     const base64Data = data.result.value.data[0];
     const binary = atob(base64Data);
     const bytes = new Uint8Array(binary.length);
@@ -289,23 +285,47 @@ async function fetchFOGOPrice(rpcUrl) {
       bytes[i] = binary.charCodeAt(i);
     }
     
-    // sqrt_price_x64: 16 bytes at offset 156
-    // u128 little-endian (Rust default)
-    const offset = 156;
-    let sqrtPriceX64 = 0n;
-    for (let i = 0; i < 16; i++) {
-      sqrtPriceX64 |= BigInt(bytes[offset + i]) << BigInt(i * 8);
+    console.log('Pool data length:', bytes.length, 'bytes');
+    console.log('First 64 bytes (hex):', Array.from(bytes.slice(0, 64)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+    
+    // Try multiple offsets to find sqrt_price_x64
+    // Based on Anchor layout: discriminator(8) + mint_a(32) + mint_b(32) + vault_a(32) + vault_b(32) + fee(2) + tick_spacing(2) + liquidity(16) + sqrt_price(16)
+    // = 8 + 128 + 2 + 2 + 16 = 156, but let's try 136 (after liquidity)
+    const offsets = [136, 144, 152, 156, 160, 168];
+    let priceInUsd = 0.027;
+    let foundValidPrice = false;
+    
+    for (const offset of offsets) {
+      if (offset + 16 > bytes.length) continue;
+      
+      // Read as little-endian u128
+      let sqrtPriceX64 = 0n;
+      for (let i = 0; i < 16; i++) {
+        sqrtPriceX64 |= BigInt(bytes[offset + i]) << BigInt(i * 8);
+      }
+      
+      // Skip if all zeros or all ones
+      if (sqrtPriceX64 === 0n || sqrtPriceX64 === (1n << 128n) - 1n) continue;
+      
+      // Calculate price
+      const sqrtPrice = Number(sqrtPriceX64) / (2 ** 64);
+      const rawPrice = sqrtPrice * sqrtPrice;
+      const testPrice = rawPrice * 1000; // Adjust for decimals
+      
+      console.log(`Offset ${offset}: sqrtPriceX64=${sqrtPriceX64.toString(16)}, price=$${testPrice.toFixed(6)}`);
+      
+      // Check if this is a reasonable price
+      if (testPrice > 0.001 && testPrice < 10 && !foundValidPrice) {
+        priceInUsd = testPrice;
+        foundValidPrice = true;
+      }
     }
     
-    // Calculate price: (sqrtPriceX64 / 2^64)^2
-    // This gives price in tokenB/tokenA (USDC/FOGO)
-    const sqrtPrice = Number(sqrtPriceX64) / (2 ** 64);
-    const rawPrice = sqrtPrice * sqrtPrice;
-    
-    // Adjust for decimals: FOGO has 9 decimals, USDC has 6
-    // rawPrice is in USDC/FOGO with decimals difference
-    // Need to multiply by 10^(9-6) = 1000 to get actual USD price
-    const priceInUsd = rawPrice * 1000;
+    if (!foundValidPrice) {
+      console.log('No valid price found, using fallback');
+      addLogEntry('info', '⚠️ Cannot parse price, using fallback $0.027');
+      return 0.027;
+    }
     
     console.log('FOGO Price fetched:', priceInUsd.toFixed(6), 'USDC');
     
