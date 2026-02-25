@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test RPC Connection</title>
+  <style>
+    body { background: #0b0d14; color: #f8fafc; font-family: monospace; padding: 2rem; }
+    button { background: #ff6b35; border: none; padding: 1rem 2rem; color: white; cursor: pointer; margin: 0.5rem; }
+    pre { background: #161922; padding: 1rem; border-radius: 8px; overflow: auto; max-height: 400px; }
+    .error { color: #ef4444; }
+    .success { color: #22c55e; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Test RPC Connection</h1>
+  <p>Wallet: <code>5ZwXmBu3ZvTRmFGSoyUb4rX5R9SAz5fKropohACsAmf5</code></p>
+  
+  <button onclick="testFogoRPC()">Test Fogo RPC</button>
+  <button onclick="testHelius()">Test Helius</button>
+  
+  <h3>Result:</h3>
+  <pre id="result">Click button to test...</pre>
+
+  <script>
+    const wallet = '5ZwXmBu3ZvTRmFGSoyUb4rX5R9SAz5fKropohACsAmf5';
+    
+    async function testFogoRPC() {
+      const result = document.getElementById('result');
+      result.textContent = 'Testing Fogo RPC...\n\n';
+      
+      try {
+        const res = await fetch('https://mainnet.fogo.io/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getSignaturesForAddress',
+            params: [wallet, { limit: 10 }]
+          })
+        });
+        
+        result.textContent += `Status: ${res.status}\n`;
+        const data = await res.json();
+        result.textContent += `Response:\n${JSON.stringify(data, null, 2)}`;
+        
+        if (data.result && data.result.length > 0) {
+          result.textContent += `\n\n<span class="success">✅ Found ${data.result.length} signatures!</span>`;
+        } else {
+          result.textContent += `\n\n<span class="error">⚠️ No signatures returned</span>`;
+        }
+      } catch (e) {
+        result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+      }
+    }
+    
+    async function testHelius() {
+      const result = document.getElementById('result');
+      result.textContent = 'Testing Helius...\n\n';
+      
+      try {
+        const heliusKey = '7e3f5e80-2bd8-4f8e-bacd-c62c40fe3849';
+        const res = await fetch(`https://mainnet.helius-rpc.com/?api-key=${heliusKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getSignaturesForAddress',
+            params: [wallet, { limit: 10 }]
+          })
+        });
+        
+        result.textContent += `Status: ${res.status}\n`;
+        const data = await res.json();
+        result.textContent += `Response:\n${JSON.stringify(data, null, 2)}`;
+        
+        if (data.result && data.result.length > 0) {
+          result.textContent += `\n\n<span class="success">✅ Found ${data.result.length} signatures!</span>`;
+        } else {
+          result.textContent += `\n\n<span class="error">⚠️ No signatures returned</span>`;
+        }
+      } catch (e) {
+        result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
