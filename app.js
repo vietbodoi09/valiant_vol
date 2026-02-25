@@ -455,6 +455,16 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     const newestTime = new Date(allSigsNoFilter[0].blockTime * 1000);
     console.log('DEBUG Wallet activity:', { oldest: oldestTime.toISOString(), newest: newestTime.toISOString() });
     
+    // Check if specific tx is in the list
+    const targetSig = 'wke5e7Ts5wwmwtP5fJbxgRAmBgxSTp9UR8Ym9NpjLzFQPRQDqnCWizLxqmn59yn9SKAWtqTBaBR9xXppQnjGL5S';
+    const foundTx = allSigsNoFilter.find(s => s.signature === targetSig);
+    if (foundTx) {
+      console.log('DEBUG Found target tx:', { sig: foundTx.signature.slice(0, 30), time: new Date(foundTx.blockTime * 1000).toISOString() });
+    } else {
+      console.log('DEBUG Target tx NOT in first 1000 signatures');
+      console.log('DEBUG Sample sigs:', allSigsNoFilter.slice(0, 5).map(s => ({ sig: s.signature.slice(0, 30), time: new Date(s.blockTime * 1000).toISOString() })));
+    }
+    
     // Show warning if no signatures in date range
     if (allSignatures.length === 0) {
       addLogEntry('info', `⚠️ No transactions in ${new Date(startTime * 1000).toLocaleDateString()} - ${new Date(endTime * 1000).toLocaleDateString()}`);
