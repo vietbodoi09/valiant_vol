@@ -424,7 +424,8 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     }
   }
   
-  console.log(`📋 Found ${allSignatures.length} signatures`);
+  console.log(`📋 Found ${allSignatures.length} signatures in date range`);
+  addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
   
   if (allSignatures.length === 0) {
     return { totalSwaps: 0, totalFogoVolume: 0, totalUsdVolume: 0, poolVolumes: {}, transactions: [] };
@@ -466,6 +467,7 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     
     // Update progress and log stats after each batch
     updateProgress(totalChecked, allSwaps.length, allSignatures.length);
+    console.log(`Batch ${batchCount}: Checked ${totalChecked}, Found ${allSwaps.length} Valiant swaps`);
     
     // Calculate running net positions
     let fogoNet = 0, ifogoNet = 0;
