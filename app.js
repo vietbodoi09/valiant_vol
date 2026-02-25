@@ -487,6 +487,40 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     console.log('⚠️ No signatures in selected date range!');
     console.log(`Wallet activity: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
     addLogEntry('info', `⚠️ No activity in selected range. Wallet active: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
+    
+    // DEBUG: Try to fetch the specific transaction directly
+    const targetSig = 'wke5e7Ts5wwmwtP5fJbxgRAmBgxSTp9UR8Ym9NpjLzFQPRQDqnCWizLxqmn59yn9SKAWtqTBaBR9xXppQnjGL5S';
+    console.log('DEBUG: Checking specific tx directly...');
+    try {
+      const txResponse = await fetchWithTimeout(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getSignatureStatuses',
+          params: [[targetSig], { searchTransactionHistory: true }]
+        })
+      }, 5000);
+      
+      if (txResponse.ok) {
+        const txData = await txResponse.json();
+        console.log('DEBUG Specific tx status:', txData);
+        if (txData.result?.value?.[0]) {
+          const slot = txData.result.value[0].slot;
+          const blockTime = txData.result.value[0].blockTime;
+          console.log(`DEBUG Target tx: slot=${slot}, time=${blockTime ? new Date(blockTime * 1000).toISOString() : 'unknown'}`);
+          if (blockTime) {
+            console.log(`DEBUG Target tx time check: ${blockTime} vs range ${startTime}-${endTime}`);
+            console.log(`DEBUG In range? ${blockTime >= startTime && blockTime <= endTime}`);
+          }
+        } else {
+          console.log('DEBUG Target tx NOT FOUND - does not belong to this wallet!');
+        }
+      }
+    } catch (e) {
+      console.log('DEBUG Error checking specific tx:', e.message);
+    }
   }
   addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
   console.log(`DEBUG: Wallet has ${allSigsNoFilter.length} total signatures`);
