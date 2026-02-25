@@ -604,33 +604,37 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   let totalUsdVolume = 0;
   let totalFogoLoss = 0;  // Total FOGO loss from pool fees
   
-  // Calculate FOGO Net position (for Total FOGO Lost calculation)
+  // Calculate FOGO Net position
   let fogoNetPosition = 0;
-  console.log('=== FOGO NET CALCULATION ===');
+  console.log('=== FOGO NET CALCULATION (FIXED) ===');
   for (const tx of allSwaps) {
     let txChange = 0;
-    // Check if FOGO is tokenA
+    // FOGO as tokenA
     if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
-      if (tx.direction === 'BtoA') {
-        fogoNetPosition += tx.amountA; // Bought FOGO (received tokenA)
-        txChange += tx.amountA;
-      } else {
-        fogoNetPosition -= tx.amountA; // Sold FOGO (sent tokenA)
+      // AtoB: Sold FOGO (đưa FOGO vào pool) → -FOGO
+      // BtoA: Bought FOGO (nhận FOGO từ pool) → +FOGO
+      if (tx.direction === 'AtoB') {
+        fogoNetPosition -= tx.amountA; // Sold FOGO
         txChange -= tx.amountA;
+      } else {
+        fogoNetPosition += tx.amountA; // Bought FOGO
+        txChange += tx.amountA;
       }
     }
-    // Check if FOGO is tokenB
+    // FOGO as tokenB
     if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
-      if (tx.direction === 'AtoB') {
-        fogoNetPosition += tx.amountB; // Bought FOGO (received tokenB)
-        txChange += tx.amountB;
-      } else {
-        fogoNetPosition -= tx.amountB; // Sold FOGO (sent tokenB)
+      // BtoA: Sold FOGO (đưa FOGO vào pool) → -FOGO
+      // AtoB: Bought FOGO (nhận FOGO từ pool) → +FOGO
+      if (tx.direction === 'BtoA') {
+        fogoNetPosition -= tx.amountB; // Sold FOGO
         txChange -= tx.amountB;
+      } else {
+        fogoNetPosition += tx.amountB; // Bought FOGO
+        txChange += tx.amountB;
       }
     }
     if (txChange !== 0) {
-      console.log(`TX ${tx.pool} ${tx.direction}: change=${txChange.toFixed(4)}, cumulative=${fogoNetPosition.toFixed(4)}`);
+      console.log(`TX ${tx.pool} ${tx.direction} ${tx.tokenA}→${tx.tokenB}: FOGO_change=${txChange.toFixed(4)}, cumulative=${fogoNetPosition.toFixed(4)}`);
     }
   }
   console.log(`Final FOGO Net: ${fogoNetPosition.toFixed(4)}`);
