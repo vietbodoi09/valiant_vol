@@ -427,11 +427,19 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   // Continue fetching until we pass the start date or run out of signatures
   if (allSignatures.length === 0) {
     console.log('📋 No signatures in initial batches, fetching full history...');
+    console.log('📋 Starting from before:', before ? before.slice(0, 30) : 'null');
     let reachedStartDate = false;
-    while (!reachedStartDate && batchCount < 500) {  // Higher limit for full history
+    let extraBatches = 0;
+    while (!reachedStartDate && extraBatches < 100) {
+      extraBatches++;
       batchCount++;
+      console.log(`📋 Fetching extra batch ${extraBatches} with before=${before ? before.slice(0, 20) : 'null'}`);
       const sigs = await fetchSignaturesBatch(walletAddress, before, rpcUrl);
-      if (!sigs || sigs.length === 0) break;
+      if (!sigs || sigs.length === 0) {
+        console.log('📋 No more signatures to fetch');
+        break;
+      }
+      console.log(`📋 Got ${sigs.length} signatures, time range: ${new Date(sigs[0].blockTime * 1000).toISOString()} to ${new Date(sigs[sigs.length - 1].blockTime * 1000).toISOString()}`);
       
       // Check for signatures within date range
       const validSigs = sigs.filter(s => s.blockTime >= startTime && s.blockTime <= endTime);
