@@ -183,8 +183,15 @@ function updateLogStats(found, fogoNet, ifogoNet) {
   const lossEl = document.getElementById('log-loss');
   
   if (foundEl) foundEl.textContent = found;
-  if (fogoEl) fogoEl.textContent = fogoNet.toFixed(1);
-  if (lossEl) lossEl.textContent = ifogoNet.toFixed(1);
+  // Hiển thị với dấu +/-
+  if (fogoEl) {
+    const fogoSign = fogoNet > 0 ? '+' : '';
+    fogoEl.textContent = fogoSign + fogoNet.toFixed(1);
+  }
+  if (lossEl) {
+    const ifogoSign = ifogoNet > 0 ? '+' : '';
+    lossEl.textContent = ifogoSign + ifogoNet.toFixed(1);
+  }
 }
 
 function clearLog() {
@@ -617,8 +624,9 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     totalUsdVolume += swap.usdVolume || 0;
   }
   
-  // Total FOGO Lost = Net position loss (đã bao gồm phí và slippage)
-  const totalFogoLost = Math.abs(fogoNetPosition);
+  // Total FOGO Lost = Net position (giữ dấu để biết lãi/lỗ)
+  // Âm = lỗ FOGO, Dương = lãi FOGO
+  const totalFogoLost = fogoNetPosition;
   
   return {
     totalSwaps: allSwaps.length,
@@ -911,8 +919,13 @@ function displayResults(data) {
   console.log('Total FOGO Volume:', data.totalFogoVolume);
   console.log('Total Swaps:', data.totalSwaps);
   console.log('FOGO Net Position:', data.fogoNetPosition);
-  console.log('Pool Fees Loss:', data.totalFogoLoss - Math.abs(data.fogoNetPosition || 0));
-  console.log('Total FOGO Lost:', data.totalFogoLoss);
+  console.log('FOGO Net (with sign):', data.totalFogoLoss);
+  if (lossEl) {
+    const sign = data.totalFogoLoss > 0 ? '+' : '';
+    lossEl.textContent = `${sign}${(data.totalFogoLoss || 0).toFixed(4)}`;
+    // Đổi màu theo lãi/lỗ
+    lossEl.style.color = data.totalFogoLoss > 0 ? 'var(--accent-primary)' : (data.totalFogoLoss < 0 ? 'var(--accent-danger)' : '');
+  }
   if (data.transactions && data.transactions.length > 0) {
     console.log('=== TX SAMPLE 1 ===');
     const t1 = data.transactions[0];
