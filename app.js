@@ -606,18 +606,34 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   
   // Calculate FOGO Net position (for Total FOGO Lost calculation)
   let fogoNetPosition = 0;
+  console.log('=== FOGO NET CALCULATION ===');
   for (const tx of allSwaps) {
+    let txChange = 0;
     // Check if FOGO is tokenA
     if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
-      if (tx.direction === 'BtoA') fogoNetPosition += tx.amountA; // Bought FOGO (received tokenA)
-      else fogoNetPosition -= tx.amountA; // Sold FOGO (sent tokenA)
+      if (tx.direction === 'BtoA') {
+        fogoNetPosition += tx.amountA; // Bought FOGO (received tokenA)
+        txChange += tx.amountA;
+      } else {
+        fogoNetPosition -= tx.amountA; // Sold FOGO (sent tokenA)
+        txChange -= tx.amountA;
+      }
     }
     // Check if FOGO is tokenB
     if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
-      if (tx.direction === 'AtoB') fogoNetPosition += tx.amountB; // Bought FOGO (received tokenB)
-      else fogoNetPosition -= tx.amountB; // Sold FOGO (sent tokenB)
+      if (tx.direction === 'AtoB') {
+        fogoNetPosition += tx.amountB; // Bought FOGO (received tokenB)
+        txChange += tx.amountB;
+      } else {
+        fogoNetPosition -= tx.amountB; // Sold FOGO (sent tokenB)
+        txChange -= tx.amountB;
+      }
+    }
+    if (txChange !== 0) {
+      console.log(`TX ${tx.pool} ${tx.direction}: change=${txChange.toFixed(4)}, cumulative=${fogoNetPosition.toFixed(4)}`);
     }
   }
+  console.log(`Final FOGO Net: ${fogoNetPosition.toFixed(4)}`);
   
   for (const swap of allSwaps) {
     totalFogoVolume += swap.fogoVolume || 0;
