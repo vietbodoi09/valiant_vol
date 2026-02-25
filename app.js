@@ -424,33 +424,33 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     }
   }
   
-  // If no signatures in date range, fetch more batches going back further
-  if (allSignatures.length === 0 && batchCount < CONFIG.MAX_BATCHES) {
-    console.log('📋 No signatures in range, fetching more history...');
-    let emptyBatchCount = 0;
-    while (batchCount < CONFIG.MAX_BATCHES && emptyBatchCount < 3) {
+  // Continue fetching until we pass the start date or run out of signatures
+  if (allSignatures.length === 0) {
+    console.log('📋 No signatures in initial batches, fetching full history...');
+    let reachedStartDate = false;
+    while (!reachedStartDate && batchCount < 500) {  // Higher limit for full history
       batchCount++;
       const sigs = await fetchSignaturesBatch(walletAddress, before, rpcUrl);
-      if (!sigs || sigs.length === 0) {
-        emptyBatchCount++;
-        continue;
-      }
+      if (!sigs || sigs.length === 0) break;
       
-      // Check if any sigs are within date range
+      // Check for signatures within date range
       const validSigs = sigs.filter(s => s.blockTime >= startTime && s.blockTime <= endTime);
       if (validSigs.length > 0) {
-        console.log(`📋 Found ${validSigs.length} older signatures in range!`);
         allSignatures.push(...validSigs);
-        emptyBatchCount = 0;
+        console.log(`📋 Found ${validSigs.length} signatures in range`);
       }
       
       before = sigs[sigs.length - 1].signature;
       
-      // Stop if we've gone too far back (before startTime by more than 30 days)
+      // Check if we've gone past the start date
       const oldestInBatch = sigs[sigs.length - 1].blockTime;
-      if (oldestInBatch < startTime - 30 * 24 * 60 * 60) {
-        console.log('📋 Stopping: reached 30 days before start date');
-        break;
+      if (oldestInBatch < startTime) {
+        reachedStartDate = true;
+        console.log('📋 Reached start date, stopping fetch');
+      }
+      
+      if (batchCount % 10 === 0) {
+        setLoading(true, `⚡ Fetched ${batchCount} batches, checking history...`);
       }
     }
   }
