@@ -948,18 +948,26 @@ function displayResults(data) {
     `;
   }
   
-  // Highlight pool tags that have been used
+  // Update Pool Active tags dynamically
   const poolsGrid = document.getElementById('pools-grid');
   if (poolsGrid && data.poolVolumes) {
-    const poolTags = poolsGrid.querySelectorAll('.pool-tag');
-    poolTags.forEach(tag => {
-      const poolName = tag.dataset.pool;
-      if (data.poolVolumes[poolName] && data.poolVolumes[poolName].swaps > 0) {
-        tag.classList.add('active');
-      } else {
-        tag.classList.remove('active');
-      }
-    });
+    poolsGrid.innerHTML = ''; // Clear existing
+    
+    // Only show pools with swaps, sorted by swap count
+    const activePools = Object.entries(data.poolVolumes)
+      .filter(([_, info]) => info.swaps > 0)
+      .sort((a, b) => b[1].swaps - a[1].swaps);
+    
+    for (const [poolName, info] of activePools) {
+      const tag = document.createElement('div');
+      tag.className = 'pool-tag active';
+      tag.textContent = `${poolName} (${info.swaps})`;
+      poolsGrid.appendChild(tag);
+    }
+    
+    if (activePools.length === 0) {
+      poolsGrid.innerHTML = '<div class="pool-tag">No active pools</div>';
+    }
   }
   
   // Transaction table
