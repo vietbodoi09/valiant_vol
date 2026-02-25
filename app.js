@@ -50,8 +50,8 @@ const CONFIG = {
   SIG_BATCH_SIZE: 200,    // 100 signatures per call (safe)
   TX_BATCH_SIZE: 80,      // 50 transactions per batch  
   TX_CONCURRENT: 10,       // 5 concurrent = 250 tx parallel (browser safe)
-  MAX_BATCHES: 200,       // Max 100 batches = 10k signatures
-  MAX_TX_TO_PROCESS: 8000, // Max 5k transactions
+  MAX_BATCHES: 2000,       // Max 2000 batches = 400k signatures (for wallets with many tx)
+  MAX_TX_TO_PROCESS: 50000, // Max 50k transactions
   RPC_TIMEOUT: 5000       // 5 second timeout
 };
 
@@ -409,9 +409,10 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     }
     
     // Check if oldest signature is before start time - we can stop
+    // BUT only if we found some signatures in range, otherwise keep fetching
     const oldestSig = sigs[sigs.length - 1];
-    if (oldestSig.blockTime < startTime) {
-      console.log(`📋 Reached transactions before start time at batch ${batchCount}`);
+    if (oldestSig.blockTime < startTime && allSignatures.length > 0) {
+      console.log(`📋 Reached transactions before start time at batch ${batchCount}, have ${allSignatures.length} in range`);
       break;
     }
     
