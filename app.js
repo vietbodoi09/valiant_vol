@@ -688,10 +688,18 @@ function parseValiantSwap(transaction, signature, blockTime) {
   let vaultBTransfer = null;  // Transfer out of vaultB (user receives tokenB)
   
   // First check if any account in transaction is a known pool
+  // DEBUG: Log first few accounts for wFOGO swaps
+  const isWFogoTx = signature && (signature.includes('wke5e7T') || signature.includes('uuRdnK'));
+  if (isWFogoTx) {
+    console.log('DEBUG accounts:', accountAddresses.slice(0, 15));
+    console.log('DEBUG VALIANT_POOLS keys:', Object.keys(VALIANT_POOLS));
+  }
+  
   for (const addr of accountAddresses) {
     if (VALIANT_POOLS[addr]) {
       poolInfo = VALIANT_POOLS[addr];
       poolAddress = addr;
+      if (isWFogoTx) console.log('DEBUG Found pool:', addr, poolInfo.name);
       break;
     }
   }
