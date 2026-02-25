@@ -4,7 +4,7 @@
   "description": "Track ALL swap volumes across Valiant DEX pools on Fogo chain",
   "scripts": {
     "dev": "npx serve .",
-    "build": "echo 'Static site - no build needed'"
+    "build": "echo 'Static site with API routes'"
   },
   "keywords": [
     "valiant",
@@ -15,5 +15,8 @@
     "solana"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.3.0"
+  }
 }
