@@ -424,10 +424,41 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     }
   }
   
-  // DEBUG: Try without date filter to show wallet activity range
+  // If no signatures in date range, fetch more batches going back further
+  if (allSignatures.length === 0 && batchCount < CONFIG.MAX_BATCHES) {
+    console.log('📋 No signatures in range, fetching more history...');
+    let emptyBatchCount = 0;
+    while (batchCount < CONFIG.MAX_BATCHES && emptyBatchCount < 3) {
+      batchCount++;
+      const sigs = await fetchSignaturesBatch(walletAddress, before, rpcUrl);
+      if (!sigs || sigs.length === 0) {
+        emptyBatchCount++;
+        continue;
+      }
+      
+      // Check if any sigs are within date range
+      const validSigs = sigs.filter(s => s.blockTime >= startTime && s.blockTime <= endTime);
+      if (validSigs.length > 0) {
+        console.log(`📋 Found ${validSigs.length} older signatures in range!`);
+        allSignatures.push(...validSigs);
+        emptyBatchCount = 0;
+      }
+      
+      before = sigs[sigs.length - 1].signature;
+      
+      // Stop if we've gone too far back (before startTime by more than 30 days)
+      const oldestInBatch = sigs[sigs.length - 1].blockTime;
+      if (oldestInBatch < startTime - 30 * 24 * 60 * 60) {
+        console.log('📋 Stopping: reached 30 days before start date');
+        break;
+      }
+    }
+  }
+  
+  // DEBUG: Check wallet activity range
   console.log('DEBUG: Checking wallet activity range...');
   const allSigsNoFilter = [];
-  let beforeDebug = null;
+  let beforeDebug = before || null;
   for (let i = 0; i < 5; i++) {
     const sigs = await fetchSignaturesBatch(walletAddress, beforeDebug, rpcUrl);
     if (!sigs || sigs.length === 0) break;
