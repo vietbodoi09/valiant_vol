@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test Valiant API Proxy</title>
+  <style>
+    body {
+      background: #0b0d14;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      padding: 2rem;
+    }
+    button {
+      background: linear-gradient(135deg, #ff6b35, #ff4500);
+      border: none;
+      padding: 1rem 2rem;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    }
+    pre {
+      background: #161922;
+      padding: 1.5rem;
+      border-radius: 12px;
+      overflow: auto;
+      max-height: 600px;
+      font-size: 12px;
+      border: 1px solid #2a2f3e;
+    }
+    h1 { color: #ff6b35; }
+    .success { color: #22c55e; }
+    .error { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Test Valiant API Proxy</h1>
+  <button onclick="testPools()">Test /api/pools</button>
+  <button onclick="testStats()">Test /api/stats</button>
+  <pre id="result">Click button to test API...</pre>
+  
+  <script>
+    async function testPools() {
+      const result = document.getElementById('result');
+      result.textContent = 'Loading /api/pools...\n\n';
+      
+      try {
+        const res = await fetch('/api/pools?page=1&limit=10&interval=24h');
+        const data = await res.json();
+        
+        if (data.error) {
+          result.innerHTML = `<span class="error">Error: ${data.error}</span>\n${data.message}`;
+          return;
+        }
+        
+        result.innerHTML = `<span class="success">✅ Success!</span>\n\nPools count: ${data.pools?.length || 0}\n\n${JSON.stringify(data, null, 2)}`;
+        
+        // Show summary
+        if (data.pools) {
+          const summary = data.pools.map(p => 
+            `${p.tokenA?.symbol || '?'}/${p.tokenB?.symbol || '?'}: TVL $${(p.tvl || 0).toFixed(2)}, Vol24h $${(p.volume24h || 0).toFixed(2)}`
+          ).join('\n');
+          result.textContent += '\n\n=== POOLS SUMMARY ===\n' + summary;
+        }
+        
+      } catch (e) {
+        result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+      }
+    }
+    
+    async function testStats() {
+      const result = document.getElementById('result');
+      result.textContent = 'Loading /api/stats...\n\n';
+      
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        
+        if (data.error) {
+          result.innerHTML = `<span class="error">Error: ${data.error}</span>\n${data.message}`;
+          return;
+        }
+        
+        result.innerHTML = `<span class="success">✅ Success!</span>\n\n${JSON.stringify(data, null, 2)}`;
+        
+      } catch (e) {
+        result.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
