@@ -489,8 +489,11 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     addLogEntry('info', `⚠️ No activity in selected range. Wallet active: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
     
     // DEBUG: Try to fetch the specific transaction directly
+    // This tx should be: wke5e7Ts5wwmwtP5fJbxgRAmBgxSTp9UR8Ym9NpjLzFQPRQDqnCWizLxqmn59yn9SKAWtqTBaBR9xXppQnjGL5S
+    // According to fogoscan, it's on Feb 22, 2026
     const targetSig = 'wke5e7Ts5wwmwtP5fJbxgRAmBgxSTp9UR8Ym9NpjLzFQPRQDqnCWizLxqmn59yn9SKAWtqTBaBR9xXppQnjGL5S';
-    console.log('DEBUG: Checking specific tx directly...');
+    console.log('DEBUG: Checking specific tx from Feb 22...');
+    console.log('DEBUG Wallet address being checked:', walletAddress);
     try {
       const txResponse = await fetchWithTimeout(rpcUrl, {
         method: 'POST',
