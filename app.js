@@ -754,11 +754,14 @@ function getAccountAddresses(transaction) {
 }
 
 // Parse swap from inner instructions (most reliable method)
-function parseValiantSwap(transaction, signature, blockTime) {
+function parseValiantSwap(transaction, signature, blockTime, userWallet) {
   const { meta } = transaction;
   if (!meta?.innerInstructions) return null;
   
   const accountAddresses = getAccountAddresses(transaction);
+  
+  // Get signer if userWallet not provided
+  const signer = userWallet || accountAddresses[0];
   
   // Find all token transfers in inner instructions
   const transfers = [];
@@ -836,10 +839,57 @@ function parseValiantSwap(transaction, signature, blockTime) {
     }
   }
   
-  // For pools without vault mapping, use any two transfers as vault transfers
+  // For pools without vault mapping, determine by token mint and direction (using signer)
   if (poolInfo && !poolInfo.vaultA && !vaultATransfer && transfers.length >= 2) {
-    vaultATransfer = transfers[0];
-    vaultBTransfer = transfers[1];
+    // Find mints for tokenA and tokenB
+    const mintA = Object.keys(TOKEN_INFO).find(k => TOKEN_INFO[k].name === poolInfo.tokenA);
+    const mintB = Object.keys(TOKEN_INFO).find(k => TOKEN_INFO[k].name === poolInfo.tokenB);
+    
+    // For each transfer, determine:
+    // - Which token (A or B)
+    // - Direction: sent (from signer) or received (to signer)
+    let tokenATransfer = null;  // Transfer involving tokenA
+    let tokenBTransfer = null;  // Transfer involving tokenB
+    
+    for (const transfer of transfers) {
+      const sourceMint = accountToMint[transfer.source];
+      const destMint = accountToMint[transfer.destination];
+      const isFromUser = transfer.source === signer;
+      const isToUser = transfer.destination === signer;
+      
+      if (sourceMint === mintA || destMint === mintA) {
+        tokenATransfer = {...transfer, isFromUser, isToUser, token: 'A'};
+      } else if (sourceMint === mintB || destMint === mintB) {
+        tokenBTransfer = {...transfer, isFromUser, isToUser, token: 'B'};
+      }
+    }
+    
+    // vaultATransfer = user sent tokenA (if selling A) or received tokenA (if buying A)
+    // We need to determine which is input and which is output based on direction
+    if (tokenATransfer && tokenBTransfer) {
+      if (tokenATransfer.isFromUser) {
+        // User sent tokenA, received tokenB (AtoB)
+        vaultATransfer = tokenATransfer;  // Input: tokenA sent
+        vaultBTransfer = tokenBTransfer;  // Output: tokenB received
+      } else if (tokenBTransfer.isFromUser) {
+        // User sent tokenB, received tokenA (BtoA)
+        vaultATransfer = tokenATransfer;  // Output: tokenA received
+        vaultBTransfer = tokenBTransfer;  // Input: tokenB sent
+      } else {
+        // Fallback - can't determine direction
+        vaultATransfer = tokenATransfer;
+        vaultBTransfer = tokenBTransfer;
+      }
+    }
+    
+    if (poolInfo.name === 'FOGO-CHASE') {
+      console.log('DEBUG FOGO-CHASE no-vault:', {
+        signer: signer.slice(0, 20),
+        tokenA: tokenATransfer ? {amt: tokenATransfer.amount, isFromUser: tokenATransfer.isFromUser, isToUser: tokenATransfer.isToUser} : null,
+        tokenB: tokenBTransfer ? {amt: tokenBTransfer.amount, isFromUser: tokenBTransfer.isFromUser, isToUser: tokenBTransfer.isToUser} : null,
+        determinedDir: tokenATransfer?.isFromUser ? 'AtoB (sell A)' : (tokenBTransfer?.isFromUser ? 'BtoA (sell B)' : 'unknown')
+      });
+    }
   }
   
   // If we found both sides of the swap
