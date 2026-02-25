@@ -844,6 +844,18 @@ function parseValiantSwap(transaction, signature, blockTime) {
   
   // If we found both sides of the swap
   if (poolInfo && vaultATransfer && vaultBTransfer) {
+    // DEBUG for FOGO-CHASE
+    if (poolInfo.name === 'FOGO-CHASE') {
+      console.log('DEBUG FOGO-CHASE:', {
+        vaultA: poolInfo.vaultA,
+        vaultB: poolInfo.vaultB,
+        vaultATransferDst: vaultATransfer.destination,
+        vaultBTransferSrc: vaultBTransfer.source,
+        vaultATransferAmt: vaultATransfer.amount,
+        vaultBTransferAmt: vaultBTransfer.amount
+      });
+    }
+    
     // Determine which vault is A and which is B
     const isDstVaultA = poolInfo.vaultA && poolInfo.vaultA === vaultATransfer.destination;
     
