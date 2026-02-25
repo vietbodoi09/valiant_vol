@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Valiant API</title>
+</head>
+<body>
+  <h1>Test Valiant API</h1>
+  <button onclick="testAPI()">Test API</button>
+  <pre id="result"></pre>
+  
+  <script>
+    async function testAPI() {
+      const endpoints = [
+        '/api/v1/pools/paginated?page=1&limit=10&interval=24h',
+        '/api/v1/pools',
+        '/api/v2/pools'
+      ];
+      
+      const result = document.getElementById('result');
+      result.textContent = 'Testing...\n\n';
+      
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(`https://mainnet-api.valiant.trade${endpoint}`, {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'include'
+          });
+          const data = await res.json();
+          result.textContent += `${endpoint}: OK\n${JSON.stringify(data, null, 2).slice(0, 500)}...\n\n`;
+          break;
+        } catch (e) {
+          result.textContent += `${endpoint}: ${e.message}\n\n`;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
