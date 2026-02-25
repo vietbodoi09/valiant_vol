@@ -429,11 +429,18 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   if (allSignatures.length > 0) {
     console.log('First sig time:', new Date(allSignatures[0].blockTime * 1000).toISOString());
     console.log('Last sig time:', new Date(allSignatures[allSignatures.length - 1].blockTime * 1000).toISOString());
+  } else if (allSigsNoFilter.length > 0) {
+    // No signatures in date range, but found some without filter
+    const oldestTime = new Date(allSigsNoFilter[allSigsNoFilter.length - 1].blockTime * 1000);
+    const newestTime = new Date(allSigsNoFilter[0].blockTime * 1000);
+    console.log('⚠️ No signatures in selected date range!');
+    console.log(`Wallet activity: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
+    addLogEntry('info', `⚠️ No activity in selected range. Wallet active: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
   }
   addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
   
-  // DEBUG: Try without date filter
-  console.log('DEBUG: Trying without date filter...');
+  // DEBUG: Try without date filter to show wallet activity range
+  console.log('DEBUG: Checking wallet activity range...');
   const allSigsNoFilter = [];
   let beforeDebug = null;
   for (let i = 0; i < 5; i++) {
@@ -442,10 +449,17 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     allSigsNoFilter.push(...sigs);
     beforeDebug = sigs[sigs.length - 1].signature;
   }
-  console.log(`DEBUG: Found ${allSigsNoFilter.length} signatures without filter`);
+  console.log(`DEBUG: Wallet has ${allSigsNoFilter.length} total signatures`);
   if (allSigsNoFilter.length > 0) {
-    console.log('DEBUG First sig:', { time: new Date(allSigsNoFilter[0].blockTime * 1000).toISOString(), sig: allSigsNoFilter[0].signature.slice(0, 20) });
-    console.log('DEBUG Last sig:', { time: new Date(allSigsNoFilter[allSigsNoFilter.length - 1].blockTime * 1000).toISOString(), sig: allSigsNoFilter[allSigsNoFilter.length - 1].signature.slice(0, 20) });
+    const oldestTime = new Date(allSigsNoFilter[allSigsNoFilter.length - 1].blockTime * 1000);
+    const newestTime = new Date(allSigsNoFilter[0].blockTime * 1000);
+    console.log('DEBUG Wallet activity:', { oldest: oldestTime.toISOString(), newest: newestTime.toISOString() });
+    
+    // Show warning if no signatures in date range
+    if (allSignatures.length === 0) {
+      addLogEntry('info', `⚠️ No transactions in ${new Date(startTime * 1000).toLocaleDateString()} - ${new Date(endTime * 1000).toLocaleDateString()}`);
+      addLogEntry('info', `📅 Wallet active: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
+    }
   }
   
   if (allSignatures.length === 0) {
