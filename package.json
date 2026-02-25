@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Track ALL swap volumes across Valiant DEX pools on Fogo chain",
   "scripts": {
-    "dev": "npx serve .",
-    "build": "echo 'Static site with API routes'"
+    "dev": "npx serve public",
+    "build": "echo 'Static files in public/'"
   },
   "keywords": [
     "valiant",

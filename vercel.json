@@ -1,27 +1,24 @@
 {
+  "version": 2,
   "functions": {
-    "api/*.js": {
-      "maxDuration": 10
+    "api/pools.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/stats.js": {
+      "runtime": "nodejs18.x"
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
+    { "source": "/api/pools", "destination": "/api/pools.js" },
+    { "source": "/api/stats", "destination": "/api/stats.js" }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, OPTIONS"
-        }
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     }
   ]
