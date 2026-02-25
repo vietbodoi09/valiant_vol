@@ -948,6 +948,20 @@ function displayResults(data) {
     `;
   }
   
+  // Highlight pool tags that have been used
+  const poolsGrid = document.getElementById('pools-grid');
+  if (poolsGrid && data.poolVolumes) {
+    const poolTags = poolsGrid.querySelectorAll('.pool-tag');
+    poolTags.forEach(tag => {
+      const poolName = tag.dataset.pool;
+      if (data.poolVolumes[poolName] && data.poolVolumes[poolName].swaps > 0) {
+        tag.classList.add('active');
+      } else {
+        tag.classList.remove('active');
+      }
+    });
+  }
+  
   // Transaction table
   const tbody = document.getElementById('tx-tbody');
   if (!tbody) return; // Exit if table not found
