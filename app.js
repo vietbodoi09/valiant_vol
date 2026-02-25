@@ -432,6 +432,22 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   }
   addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
   
+  // DEBUG: Try without date filter
+  console.log('DEBUG: Trying without date filter...');
+  const allSigsNoFilter = [];
+  let beforeDebug = null;
+  for (let i = 0; i < 5; i++) {
+    const sigs = await fetchSignaturesBatch(walletAddress, beforeDebug, rpcUrl);
+    if (!sigs || sigs.length === 0) break;
+    allSigsNoFilter.push(...sigs);
+    beforeDebug = sigs[sigs.length - 1].signature;
+  }
+  console.log(`DEBUG: Found ${allSigsNoFilter.length} signatures without filter`);
+  if (allSigsNoFilter.length > 0) {
+    console.log('DEBUG First sig:', { time: new Date(allSigsNoFilter[0].blockTime * 1000).toISOString(), sig: allSigsNoFilter[0].signature.slice(0, 20) });
+    console.log('DEBUG Last sig:', { time: new Date(allSigsNoFilter[allSigsNoFilter.length - 1].blockTime * 1000).toISOString(), sig: allSigsNoFilter[allSigsNoFilter.length - 1].signature.slice(0, 20) });
+  }
+  
   if (allSignatures.length === 0) {
     return { totalSwaps: 0, totalFogoVolume: 0, totalUsdVolume: 0, poolVolumes: {}, transactions: [] };
   }
