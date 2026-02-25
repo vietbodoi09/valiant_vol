@@ -424,6 +424,17 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     }
   }
   
+  // DEBUG: Try without date filter to show wallet activity range
+  console.log('DEBUG: Checking wallet activity range...');
+  const allSigsNoFilter = [];
+  let beforeDebug = null;
+  for (let i = 0; i < 5; i++) {
+    const sigs = await fetchSignaturesBatch(walletAddress, beforeDebug, rpcUrl);
+    if (!sigs || sigs.length === 0) break;
+    allSigsNoFilter.push(...sigs);
+    beforeDebug = sigs[sigs.length - 1].signature;
+  }
+  
   console.log(`📋 Found ${allSignatures.length} signatures in date range`);
   console.log('Date range:', { startTime: new Date(startTime * 1000).toISOString(), endTime: new Date(endTime * 1000).toISOString() });
   if (allSignatures.length > 0) {
@@ -438,17 +449,6 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
     addLogEntry('info', `⚠️ No activity in selected range. Wallet active: ${oldestTime.toLocaleDateString()} → ${newestTime.toLocaleDateString()}`);
   }
   addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
-  
-  // DEBUG: Try without date filter to show wallet activity range
-  console.log('DEBUG: Checking wallet activity range...');
-  const allSigsNoFilter = [];
-  let beforeDebug = null;
-  for (let i = 0; i < 5; i++) {
-    const sigs = await fetchSignaturesBatch(walletAddress, beforeDebug, rpcUrl);
-    if (!sigs || sigs.length === 0) break;
-    allSigsNoFilter.push(...sigs);
-    beforeDebug = sigs[sigs.length - 1].signature;
-  }
   console.log(`DEBUG: Wallet has ${allSigsNoFilter.length} total signatures`);
   if (allSigsNoFilter.length > 0) {
     const oldestTime = new Date(allSigsNoFilter[allSigsNoFilter.length - 1].blockTime * 1000);
