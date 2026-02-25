@@ -609,6 +609,7 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   let totalBought = 0, totalSold = 0;
   console.log('=== FOGO NET CALCULATION ===');
   console.log('Logic: AtoB = bán A mua B | BtoA = bán B mua A');
+  console.log('TX details:', allSwaps.map(tx => ({pool: tx.pool, dir: tx.direction, tokenA: tx.tokenA, amountA: tx.amountA, tokenB: tx.tokenB, amountB: tx.amountB})));
   
   for (const tx of allSwaps) {
     let txChange = 0;
