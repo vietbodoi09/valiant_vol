@@ -681,18 +681,29 @@ function parseValiantSwap(transaction, signature, blockTime) {
     }
   }
   
-  // Find the swap pair using known pool vaults
+  // Find the swap pair using known pool vaults or pool address in accounts
   let poolInfo = null;
   let poolAddress = null;
   let vaultATransfer = null;  // Transfer into vaultA (user sends tokenA)
   let vaultBTransfer = null;  // Transfer out of vaultB (user receives tokenB)
   
+  // First check if any account in transaction is a known pool
+  for (const addr of accountAddresses) {
+    if (VALIANT_POOLS[addr]) {
+      poolInfo = VALIANT_POOLS[addr];
+      poolAddress = addr;
+      break;
+    }
+  }
+  
   for (const transfer of transfers) {
     // Check if destination is a pool vault (user sending to pool)
     const dstPool = VAULT_TO_POOL[transfer.destination];
     if (dstPool && !vaultATransfer) {
-      poolInfo = dstPool;
-      poolAddress = dstPool.poolAddr;
+      if (!poolInfo) {
+        poolInfo = dstPool;
+        poolAddress = dstPool.poolAddr;
+      }
       vaultATransfer = transfer;
     }
     
@@ -707,10 +718,16 @@ function parseValiantSwap(transaction, signature, blockTime) {
     }
   }
   
+  // For pools without vault mapping, use any two transfers as vault transfers
+  if (poolInfo && !poolInfo.vaultA && !vaultATransfer && transfers.length >= 2) {
+    vaultATransfer = transfers[0];
+    vaultBTransfer = transfers[1];
+  }
+  
   // If we found both sides of the swap
   if (poolInfo && vaultATransfer && vaultBTransfer) {
     // Determine which vault is A and which is B
-    const isDstVaultA = poolInfo.vaultA === vaultATransfer.destination;
+    const isDstVaultA = poolInfo.vaultA && poolInfo.vaultA === vaultATransfer.destination;
     
     // Get mints from pool info
     const mintA = Object.keys(TOKEN_INFO).find(k => TOKEN_INFO[k].name === poolInfo.tokenA);
