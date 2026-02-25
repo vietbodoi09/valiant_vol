@@ -425,6 +425,11 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   }
   
   console.log(`📋 Found ${allSignatures.length} signatures in date range`);
+  console.log('Date range:', { startTime: new Date(startTime * 1000).toISOString(), endTime: new Date(endTime * 1000).toISOString() });
+  if (allSignatures.length > 0) {
+    console.log('First sig time:', new Date(allSignatures[0].blockTime * 1000).toISOString());
+    console.log('Last sig time:', new Date(allSignatures[allSignatures.length - 1].blockTime * 1000).toISOString());
+  }
   addLogEntry('info', `📋 Found ${allSignatures.length} signatures to check`);
   
   if (allSignatures.length === 0) {
