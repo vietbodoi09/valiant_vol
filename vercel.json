@@ -1,17 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/pools.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/stats.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "rewrites": [
-    { "source": "/api/pools", "destination": "/api/pools.js" },
-    { "source": "/api/stats", "destination": "/api/stats.js" }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",

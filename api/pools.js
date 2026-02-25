@@ -1,6 +1,4 @@
-// Proxy API for Valiant pools data
-export default async function handler(req, res) {
-  // Set CORS headers
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -29,7 +27,6 @@ export default async function handler(req, res) {
     
     const data = await response.json();
     
-    // Cache for 5 minutes
     res.setHeader('Cache-Control', 'public, max-age=300');
     res.status(200).json(data);
     
@@ -40,4 +37,4 @@ export default async function handler(req, res) {
       message: error.message 
     });
   }
-}
+};
