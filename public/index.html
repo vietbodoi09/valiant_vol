@@ -497,7 +497,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
 // Set default dates: 7 days ago to now
 (function() {
   const now = new Date();
-  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000); // 14 days default
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days default
   
   const formatDateTimeLocal = (date) => {
     const year = date.getFullYear();
@@ -508,7 +508,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
   
-  document.getElementById('start-date').value = formatDateTimeLocal(twoWeeksAgo);
+  document.getElementById('start-date').value = formatDateTimeLocal(weekAgo);
   document.getElementById('end-date').value = formatDateTimeLocal(now);
 })();
 </script>
