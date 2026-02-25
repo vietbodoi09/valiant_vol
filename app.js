@@ -786,14 +786,16 @@ function displayResults(data) {
   console.log('Total FOGO Volume:', data.totalFogoVolume);
   console.log('Total Swaps:', data.totalSwaps);
   console.log('FOGO Net Position:', data.fogoNetPosition);
-  console.log('Pool Fees Loss:', data.totalFogoLoss - Math.abs(data.fogoNetPosition));
+  console.log('Pool Fees Loss:', data.totalFogoLoss - Math.abs(data.fogoNetPosition || 0));
   console.log('Total FOGO Lost:', data.totalFogoLoss);
-  console.log('=== TX SAMPLE 1 ===');
-  const t1 = data.transactions[0];
-  console.log(`Pool: ${t1.pool}, Dir: ${t1.direction}`);
-  console.log(`TokenA: ${t1.amountA} ${t1.tokenA}`);
-  console.log(`TokenB: ${t1.amountB} ${t1.tokenB}`);
-  console.log(`FOGO Volume: ${t1.fogoVolume}`);
+  if (data.transactions && data.transactions.length > 0) {
+    console.log('=== TX SAMPLE 1 ===');
+    const t1 = data.transactions[0];
+    console.log(`Pool: ${t1.pool}, Dir: ${t1.direction}`);
+    console.log(`TokenA: ${t1.amountA} ${t1.tokenA}`);
+    console.log(`TokenB: ${t1.amountB} ${t1.tokenB}`);
+    console.log(`FOGO Volume: ${t1.fogoVolume}`);
+  }
   if (totalUsdEl) totalUsdEl.textContent = `$${(data.totalUsdVolume || 0).toFixed(2)}`;
   if (fogoVolEl) fogoVolEl.textContent = (data.totalFogoVolume || 0).toFixed(4);
   if (avgSwapEl) avgSwapEl.textContent = data.totalSwaps > 0 ? (data.totalFogoVolume / data.totalSwaps).toFixed(4) : '0.0000';
