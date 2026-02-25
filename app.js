@@ -606,38 +606,56 @@ async function fetchAllTransactions(walletAddress, startTime, endTime, rpcUrl) {
   
   // Calculate FOGO Net position
   let fogoNetPosition = 0;
-  console.log('=== FOGO NET CALCULATION (FIXED) ===');
+  let totalBought = 0, totalSold = 0;
+  console.log('=== FOGO NET CALCULATION ===');
+  console.log('Logic: AtoB = bán A mua B | BtoA = bán B mua A');
+  
   for (const tx of allSwaps) {
     let txChange = 0;
+    let action = '';
+    
     // FOGO as tokenA
     if (tx.tokenA === 'FOGO' || tx.tokenA === 'wFOGO') {
-      // AtoB: Sold FOGO (đưa FOGO vào pool) → -FOGO
-      // BtoA: Bought FOGO (nhận FOGO từ pool) → +FOGO
       if (tx.direction === 'AtoB') {
-        fogoNetPosition -= tx.amountA; // Sold FOGO
+        // AtoB: bán A (FOGO), mua B
+        fogoNetPosition -= tx.amountA;
         txChange -= tx.amountA;
+        totalSold += tx.amountA;
+        action = `Bán ${tx.amountA.toFixed(4)} FOGO`;
       } else {
-        fogoNetPosition += tx.amountA; // Bought FOGO
+        // BtoA: mua A (FOGO), bán B
+        fogoNetPosition += tx.amountA;
         txChange += tx.amountA;
+        totalBought += tx.amountA;
+        action = `Mua ${tx.amountA.toFixed(4)} FOGO`;
       }
     }
     // FOGO as tokenB
-    if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
-      // BtoA: Sold FOGO (đưa FOGO vào pool) → -FOGO
-      // AtoB: Bought FOGO (nhận FOGO từ pool) → +FOGO
+    else if (tx.tokenB === 'FOGO' || tx.tokenB === 'wFOGO') {
       if (tx.direction === 'BtoA') {
-        fogoNetPosition -= tx.amountB; // Sold FOGO
+        // BtoA: bán B (FOGO), mua A
+        fogoNetPosition -= tx.amountB;
         txChange -= tx.amountB;
+        totalSold += tx.amountB;
+        action = `Bán ${tx.amountB.toFixed(4)} FOGO`;
       } else {
-        fogoNetPosition += tx.amountB; // Bought FOGO
+        // AtoB: mua B (FOGO), bán A
+        fogoNetPosition += tx.amountB;
         txChange += tx.amountB;
+        totalBought += tx.amountB;
+        action = `Mua ${tx.amountB.toFixed(4)} FOGO`;
       }
     }
+    
     if (txChange !== 0) {
-      console.log(`TX ${tx.pool} ${tx.direction} ${tx.tokenA}→${tx.tokenB}: FOGO_change=${txChange.toFixed(4)}, cumulative=${fogoNetPosition.toFixed(4)}`);
+      console.log(`${tx.pool} ${tx.direction}: ${action} | Net=${fogoNetPosition.toFixed(4)}`);
     }
   }
-  console.log(`Final FOGO Net: ${fogoNetPosition.toFixed(4)}`);
+  
+  console.log(`=== SUMMARY ===`);
+  console.log(`Total Bought: ${totalBought.toFixed(4)} FOGO`);
+  console.log(`Total Sold: ${totalSold.toFixed(4)} FOGO`);
+  console.log(`Net Position: ${fogoNetPosition.toFixed(4)} FOGO (dương=lãi, âm=lỗ)`);
   
   for (const swap of allSwaps) {
     totalFogoVolume += swap.fogoVolume || 0;
