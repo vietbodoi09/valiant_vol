@@ -425,7 +425,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
         <!-- Search Form -->
         <div class="card">
           <div class="card-header">
-            <h2>ðŸ” Search Filters</h2>
+            <h2>Search Filters</h2>
           </div>
           
           <div class="form-grid">
@@ -453,7 +453,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Codex API Configuration -->
           <div class="codex-config" style="margin: 1rem 0; padding: 1rem; background: rgba(255,107,53,0.05); border: 1px solid var(--border-color); border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-              <span style="font-size: 1.2rem;">ðŸ”®</span>
+              <span style="font-size: 1.2rem;">[CODEX]</span>
               <strong style="color: var(--accent-primary);">Codex Volume Comparison</strong>
               <span style="background: var(--accent-primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 0.5rem;">AUTO</span>
             </div>
@@ -463,12 +463,12 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
               Powered by <a href="https://docs.codex.io/" target="_blank" style="color: var(--accent-primary);">Codex API</a>
             </div>
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
-              ðŸ’¡ <strong>Auto-enabled:</strong> All users see the comparison. <br>
+              <strong>Note:</strong> All users see the comparison. <br>
               If you hit rate limits, you can enter your own key below.
             </div>
             <details style="font-size: 0.85rem;">
               <summary style="cursor: pointer; color: var(--text-secondary); user-select: none;">
-                ðŸ”§ Advanced: Use your own API key (optional)
+                Advanced: Use your own API key (optional)
               </summary>
               <div class="form-row" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
                 <input 
@@ -486,7 +486,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
 
           <button id="fetch-btn" class="btn-primary">
             <span class="spinner hidden"></span>
-            <span class="btn-text">ðŸ“Š Fetch Volume Data</span>
+            <span class="btn-text">Fetch Volume Data</span>
           </button>
           
           <div id="error" class="error hidden"></div>
@@ -497,28 +497,28 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Price Banner -->
           <div class="price-banner">
             <span class="live-indicator"></span>
-            ðŸ’° FOGO Price: $<input type="number" id="fogo-price-input" value="0.027" step="0.001" style="width: 80px; background: transparent; border: none; color: inherit; font-family: inherit; font-size: inherit; font-weight: 600; text-align: center;"> USDC
+            FOGO Price: $<input type="number" id="fogo-price-input" value="0.027" step="0.001" style="width: 80px; background: transparent; border: none; color: inherit; font-family: inherit; font-size: inherit; font-weight: 600; text-align: center;"> USDC
           </div>
 
           <!-- Stats Grid -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-icon">ðŸ’°</div>
+              <div class="stat-icon">$</div>
               <div class="stat-value" id="total-volume-usd">$0.00</div>
               <div class="stat-label">Total Volume (USD)</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">ðŸ”„</div>
+              <div class="stat-icon">~</div>
               <div class="stat-value" id="total-swaps">0</div>
               <div class="stat-label">Total Swaps</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">ðŸ“ˆ</div>
+              <div class="stat-icon">^</div>
               <div class="stat-value" id="fogo-sell-volume">0.0000</div>
               <div class="stat-label">Total FOGO Volume</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">âš ï¸</div>
+              <div class="stat-icon">!</div>
               <div class="stat-value" id="fogo-loss">0.0000</div>
               <div class="stat-label">Total FOGO Lost <small style="opacity:0.7;font-size:10px">(just accurate with FOGO-iFOGO)</small></div>
             </div>
@@ -527,7 +527,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Codex Wallet Stats Section -->
           <div id="codex-comparison" class="card breakdown hidden">
             <div class="card-header flex">
-              <h2>ðŸ”® Wallet Performance: RPC vs Codex</h2>
+              <h2>Wallet Performance: RPC vs Codex</h2>
               <span style="font-size: 0.85rem; color: var(--text-secondary);">Real-time wallet statistics from Codex</span>
             </div>
             <div class="table-container">
@@ -551,10 +551,10 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Pool Breakdown -->
           <div class="card breakdown">
             <div class="card-header flex">
-              <h2>ðŸ“Š Volume by Pool</h2>
+              <h2>Volume by Pool</h2>
               <div class="export-actions">
-                <button id="export-csv" class="btn-secondary">â¬‡ Export CSV</button>
-                <button id="export-json" class="btn-secondary">â¬‡ Export JSON</button>
+                <button id="export-csv" class="btn-secondary">Export CSV</button>
+                <button id="export-json" class="btn-secondary">Export JSON</button>
               </div>
             </div>
             
