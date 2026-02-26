@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -425,7 +425,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
         <!-- Search Form -->
         <div class="card">
           <div class="card-header">
-            <h2>🔍 Search Filters</h2>
+            <h2>ðŸ” Search Filters</h2>
           </div>
           
           <div class="form-grid">
@@ -453,22 +453,22 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Codex API Configuration -->
           <div class="codex-config" style="margin: 1rem 0; padding: 1rem; background: rgba(255,107,53,0.05); border: 1px solid var(--border-color); border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-              <span style="font-size: 1.2rem;">🔮</span>
+              <span style="font-size: 1.2rem;">ðŸ”®</span>
               <strong style="color: var(--accent-primary);">Codex Volume Comparison</strong>
               <span style="background: var(--accent-primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 0.5rem;">AUTO</span>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              Auto-compare RPC volume vs <a href="https://codex.io" target="_blank" style="color: var(--accent-primary);">Codex</a> data • 
-              Network: Fogo (150601) • 
+              Auto-compare RPC volume vs <a href="https://codex.io" target="_blank" style="color: var(--accent-primary);">Codex</a> data â€¢ 
+              Network: Fogo (150601) â€¢ 
               Powered by <a href="https://docs.codex.io/" target="_blank" style="color: var(--accent-primary);">Codex API</a>
             </div>
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
-              💡 <strong>Tự động bật:</strong> Mọi ngườí dùng đều thấy so sánh. <br>
-              Nếu có lỗi rate limit, bạn có thể nhập key riêng bên dưới.
+              ðŸ’¡ <strong>Tá»± Ä‘á»™ng báº­t:</strong> Má»i ngÆ°á»Ã­ dÃ¹ng Ä‘á»u tháº¥y so sÃ¡nh. <br>
+              Náº¿u cÃ³ lá»—i rate limit, báº¡n cÃ³ thá»ƒ nháº­p key riÃªng bÃªn dÆ°á»›i.
             </div>
             <details style="font-size: 0.85rem;">
               <summary style="cursor: pointer; color: var(--text-secondary); user-select: none;">
-                🔧 Nâng cao: Dùng API key riêng (tùy chọn)
+                ðŸ”§ NÃ¢ng cao: DÃ¹ng API key riÃªng (tÃ¹y chá»n)
               </summary>
               <div class="form-row" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
                 <input 
@@ -486,7 +486,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
 
           <button id="fetch-btn" class="btn-primary">
             <span class="spinner hidden"></span>
-            <span class="btn-text">📊 Fetch Volume Data</span>
+            <span class="btn-text">ðŸ“Š Fetch Volume Data</span>
           </button>
           
           <div id="error" class="error hidden"></div>
@@ -497,54 +497,48 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Price Banner -->
           <div class="price-banner">
             <span class="live-indicator"></span>
-            💰 FOGO Price: $<input type="number" id="fogo-price-input" value="0.027" step="0.001" style="width: 80px; background: transparent; border: none; color: inherit; font-family: inherit; font-size: inherit; font-weight: 600; text-align: center;"> USDC
+            ðŸ’° FOGO Price: $<input type="number" id="fogo-price-input" value="0.027" step="0.001" style="width: 80px; background: transparent; border: none; color: inherit; font-family: inherit; font-size: inherit; font-weight: 600; text-align: center;"> USDC
           </div>
 
           <!-- Stats Grid -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-icon">💰</div>
+              <div class="stat-icon">ðŸ’°</div>
               <div class="stat-value" id="total-volume-usd">$0.00</div>
               <div class="stat-label">Total Volume (USD)</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">🔄</div>
+              <div class="stat-icon">ðŸ”„</div>
               <div class="stat-value" id="total-swaps">0</div>
               <div class="stat-label">Total Swaps</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">📈</div>
+              <div class="stat-icon">ðŸ“ˆ</div>
               <div class="stat-value" id="fogo-sell-volume">0.0000</div>
               <div class="stat-label">Total FOGO Volume</div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">⚠️</div>
+              <div class="stat-icon">âš ï¸</div>
               <div class="stat-value" id="fogo-loss">0.0000</div>
               <div class="stat-label">Total FOGO Lost <small style="opacity:0.7;font-size:10px">(just accurate with FOGO-iFOGO)</small></div>
             </div>
           </div>
 
-          <!-- Codex Comparison Section -->
+          <!-- Codex Wallet Stats Section -->
           <div id="codex-comparison" class="card breakdown hidden">
             <div class="card-header flex">
-              <h2>🔮 Volume Comparison: RPC vs Codex</h2>
-              <span style="font-size: 0.85rem; color: var(--text-secondary);">Verify calculation method vs Fogoscan leaderboard</span>
-            </div>
-            <div style="padding: 0 1rem 1rem; font-size: 0.8rem; color: var(--text-secondary);">
-              <strong>Method Labels:</strong> 
-              <span style="color: var(--accent-primary);">Both sides (2x)</span> = Input + Output volume | 
-              <span style="color: var(--accent-primary);">One side</span> = Input only | 
-              <span>Other</span> = Mixed/Partial data
+              <h2>ðŸ”® Wallet Performance: RPC vs Codex</h2>
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">Real-time wallet statistics from Codex</span>
             </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Pool</th>
-                    <th>RPC Calculated</th>
+                    <th>Metric</th>
+                    <th>RPC Data</th>
                     <th>Codex API</th>
-                    <th>Difference</th>
-                    <th>Method</th>
+                    <th>Variance</th>
+                    <th>Source</th>
                   </tr>
                 </thead>
                 <tbody id="codex-comparison-body">
@@ -557,10 +551,10 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
           <!-- Pool Breakdown -->
           <div class="card breakdown">
             <div class="card-header flex">
-              <h2>📊 Volume by Pool</h2>
+              <h2>ðŸ“Š Volume by Pool</h2>
               <div class="export-actions">
-                <button id="export-csv" class="btn-secondary">⬇ Export CSV</button>
-                <button id="export-json" class="btn-secondary">⬇ Export JSON</button>
+                <button id="export-csv" class="btn-secondary">â¬‡ Export CSV</button>
+                <button id="export-json" class="btn-secondary">â¬‡ Export JSON</button>
               </div>
             </div>
             
@@ -573,7 +567,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
         <!-- Supported Pools -->
         <div class="card supported-pools">
           <div class="card-header">
-            <h2>🏊 Pool Active</h2>
+            <h2>ðŸŠ Pool Active</h2>
           </div>
           <div class="pools-grid" id="pools-grid">
             <!-- Pool tags will be added dynamically based on usage -->
@@ -582,7 +576,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
       </main>
 
       <footer>
-        <p>Valiant Volume Tracker • By Catcake </p>
+        <p>Valiant Volume Tracker â€¢ By Catcake </p>
       </footer>
     </div>
 
@@ -615,7 +609,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
     </div>
   </div>
 
-  <script src="app-20260225.js"></script>
+  <script src="app-20260226.js"></script>
 <script>
 // Set default dates: 7 days ago to now
 (function() {
