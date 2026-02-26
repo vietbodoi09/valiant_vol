@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Track ALL swap volumes across Valiant DEX pools on Fogo chain">
   <meta name="theme-color" content="#0b0d14">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Valiant Volume Tracker - Fogo DEX Analytics</title>
   
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjZiMzUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjQ1MDAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cG9seWdvbiBwb2ludHM9IjUwLDUgOTUsNTAgNTAsOTUgNSw1MCIgZmlsbD0idXJsKCNnKSIvPjxwb2x5Z29uIHBvaW50cz0iNTAsNSA3Miw1MCA1MCw5NSAyOCw1MCIgZmlsbD0iIzBiMGQxNCIvPjwvc3ZnPg==">
@@ -341,6 +344,62 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
   .logo h1 { font-size: 1.75rem; }
   .stat-value { font-size: 1.25rem; }
 }
+  /* Codex Comparison Styles */
+  .codex-config {
+    transition: all 0.3s ease;
+  }
+  .codex-config:hover {
+    border-color: var(--accent-primary) !important;
+  }
+  
+  #codex-comparison {
+    animation: fadeIn 0.5s ease;
+  }
+  
+  #codex-comparison .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #codex-comparison .data-table th,
+  #codex-comparison .data-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  #codex-comparison .data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  
+  #codex-comparison .data-table td {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+  
+  .method-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: var(--accent-primary-dim);
+    color: var(--accent-primary);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Tooltip */
+  .tooltip {
+    cursor: help;
+    opacity: 0.7;
+  }
   </style>
   <!-- Vercel Web Analytics -->
   <script>
@@ -391,6 +450,40 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
             </div>
           </div>
 
+          <!-- Codex API Configuration -->
+          <div class="codex-config" style="margin: 1rem 0; padding: 1rem; background: rgba(255,107,53,0.05); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span style="font-size: 1.2rem;">🔮</span>
+              <strong style="color: var(--accent-primary);">Codex Volume Comparison</strong>
+              <span style="background: var(--accent-primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 0.5rem;">AUTO</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Auto-compare RPC volume vs <a href="https://codex.io" target="_blank" style="color: var(--accent-primary);">Codex</a> data • 
+              Network: Fogo (150601) • 
+              Powered by <a href="https://docs.codex.io/" target="_blank" style="color: var(--accent-primary);">Codex API</a>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+              💡 <strong>Tự động bật:</strong> Mọi ngườí dùng đều thấy so sánh. <br>
+              Nếu có lỗi rate limit, bạn có thể nhập key riêng bên dưới.
+            </div>
+            <details style="font-size: 0.85rem;">
+              <summary style="cursor: pointer; color: var(--text-secondary); user-select: none;">
+                🔧 Nâng cao: Dùng API key riêng (tùy chọn)
+              </summary>
+              <div class="form-row" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                <input 
+                  type="password" 
+                  id="codex-api-key" 
+                  placeholder="Enter your Codex API key..." 
+                  style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.8rem;"
+                >
+                <button id="save-codex-key" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Save</button>
+                <button id="toggle-codex" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Disable</button>
+              </div>
+              <div id="codex-status" style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);"></div>
+            </details>
+          </div>
+
           <button id="fetch-btn" class="btn-primary">
             <span class="spinner hidden"></span>
             <span class="btn-text">📊 Fetch Volume Data</span>
@@ -428,6 +521,36 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
               <div class="stat-icon">⚠️</div>
               <div class="stat-value" id="fogo-loss">0.0000</div>
               <div class="stat-label">Total FOGO Lost <small style="opacity:0.7;font-size:10px">(just accurate with FOGO-iFOGO)</small></div>
+            </div>
+          </div>
+
+          <!-- Codex Comparison Section - DEBUG -->
+          <div id="codex-comparison" class="card breakdown" style="display: block !important; visibility: visible !important; opacity: 1 !important; background: red !important;">
+            <div class="card-header flex">
+              <h2>🔮 Volume Comparison: RPC vs Codex</h2>
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">Verify calculation method vs Fogoscan leaderboard</span>
+            </div>
+            <div style="padding: 0 1rem 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+              <strong>Method Labels:</strong> 
+              <span style="color: var(--accent-primary);">Both sides (2x)</span> = Input + Output volume | 
+              <span style="color: var(--accent-primary);">One side</span> = Input only | 
+              <span>Other</span> = Mixed/Partial data
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Pool</th>
+                    <th>RPC Calculated</th>
+                    <th>Codex API</th>
+                    <th>Difference</th>
+                    <th>Method</th>
+                  </tr>
+                </thead>
+                <tbody id="codex-comparison-body">
+                  <!-- Comparison rows will be inserted here -->
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -492,7 +615,7 @@ footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-siz
     </div>
   </div>
 
-  <script src="app.obf.js"></script>
+  <script src="app-20260225.js"></script>
 <script>
 // Set default dates: 7 days ago to now
 (function() {
