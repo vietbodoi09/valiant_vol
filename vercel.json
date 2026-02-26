@@ -3,11 +3,23 @@
     {
       "source": "/api/fogoscan/:path*",
       "destination": "https://api.fogoscan.com/v1/:path*"
+    },
+    {
+      "source": "/api/valiant/:path*",
+      "destination": "https://browser-api.valiant.trade/:path*"
     }
   ],
   "headers": [
     {
       "source": "/api/fogoscan/:path*",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    },
+    {
+      "source": "/api/valiant/:path*",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
