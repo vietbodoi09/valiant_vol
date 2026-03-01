@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valiant Swap Bot</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>Valiant Swap Bot</h1>
+        <span class="subtitle" id="pool-subtitle">FOGO ↔ iFOGO Pool</span>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <span>Status:</span>
+          <span id="status-text" class="status idle">Idle</span>
+        </div>
+        <button id="start-btn" class="btn btn-success">Start Bot</button>
+        <button id="stop-btn" class="btn btn-danger" disabled>Stop Bot</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="tab-btn" data-tab="wallets">Wallets</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+      <button class="tab-btn" data-tab="report">Report</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Tab -->
+      <div id="dashboard-tab" class="tab-content active">
+        <div class="dashboard-grid">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Wallets</div>
+              <div id="wallet-count" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Swaps</div>
+              <div id="total-swaps" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Successful</div>
+              <div id="success-swaps" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Failed</div>
+              <div id="failed-swaps" class="stat-value">0</div>
+            </div>
+          </div>
+
+          <!-- Swap Strategy Info -->
+          <div class="info-card">
+            <h3>📊 Swap Strategy</h3>
+            <div class="strategy-grid">
+              <div class="strategy-item">
+                <span class="label">SELL Direction:</span>
+                <span class="value highlight">Random 10-20 FOGO → iFOGO</span>
+              </div>
+              <div class="strategy-item">
+                <span class="label">BUY Direction:</span>
+                <span class="value highlight">Max iFOGO balance → FOGO</span>
+              </div>
+              <div class="strategy-item">
+                <span class="label">Pool Fee:</span>
+                <span class="value">0.05%</span>
+              </div>
+              <div class="strategy-item">
+                <span class="label">Gas Reserve:</span>
+                <span class="value">0.01 FOGO</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logs -->
+          <div class="logs-card">
+            <div class="logs-header">
+              <h3>📜 Live Logs</h3>
+              <button id="clear-logs-btn" class="btn btn-small">Clear Logs</button>
+            </div>
+            <div id="logs-container" class="logs-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallets Tab -->
+      <div id="wallets-tab" class="tab-content">
+        <div class="wallets-section">
+          <div class="section-header">
+            <h3>Wallet Management</h3>
+            <span class="badge">Count: <span id="wallet-count-display">0</span></span>
+          </div>
+          
+          <div class="add-wallet-form">
+            <input 
+              type="password" 
+              id="new-wallet-input" 
+              placeholder="Enter private key (base58)"
+              class="input"
+            >
+            <button id="add-wallet-btn" class="btn btn-primary">Add Wallet</button>
+          </div>
+
+          <!-- Total FOGO Summary -->
+          <div class="wallet-summary" id="wallet-summary" style="display:none;">
+            <div class="stat-card">
+              <div class="stat-label">Total Wallets</div>
+              <div id="wallet-total-count" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total FOGO Balance</div>
+              <div id="wallet-total-fogo" class="stat-value">0.0000</div>
+            </div>
+            <button id="refresh-balances-btn" class="btn btn-primary">🔄 Refresh Balances</button>
+          </div>
+
+          <div class="wallets-table-container">
+            <table class="wallets-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Address</th>
+                  <th>FOGO Balance</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="wallets-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settings-tab" class="tab-content">
+        <div class="settings-section">
+          <div class="section-header">
+            <h3>Configuration</h3>
+            <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+          </div>
+
+          <div class="settings-grid">
+            <!-- Network Settings -->
+            <div class="settings-group">
+              <h4>Network</h4>
+              <div class="form-row">
+                <label>RPC URL</label>
+                <input type="text" id="rpc-url" class="input" value="https://mainnet.fogo.io/">
+              </div>
+              <div class="form-row">
+                <label>Network</label>
+                <select id="network" class="select">
+                  <option value="fogoMainnet" selected>Fogo Mainnet</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Pool Selection -->
+            <div class="settings-group">
+              <h4>Trading Pool</h4>
+              <div class="form-row">
+                <label>Select Pool</label>
+                <select id="swap-pair" class="select">
+                  <option value="IFOGO" selected>FOGO ↔ iFOGO (HULdR8a...)</option>
+                  <option value="USDC">FOGO ↔ USDC (J7mxBLSz...)</option>
+                  <option value="STFOGO">FOGO ↔ stFOGO (Be2eoA9g...)</option>
+                </select>
+                <span class="hint">Choose trading pair for swaps</span>
+              </div>
+            </div>
+
+            <!-- Cycle Settings -->
+            <div class="settings-group">
+              <h4>Cycle Configuration</h4>
+              <div class="form-row">
+                <label>Number of Cycles</label>
+                <input type="number" id="cycles" class="input" value="50" min="1">
+              </div>
+              <div class="form-row checkbox-row">
+                <input type="checkbox" id="parallel" class="checkbox" checked>
+                <label for="parallel">Enable Parallel Processing</label>
+              </div>
+              <div class="form-row">
+                <label>Batch Size</label>
+                <input type="number" id="batch-size" class="input" value="5" min="1">
+              </div>
+            </div>
+
+            <!-- Swap Amount Settings -->
+            <div class="settings-group">
+              <h4>Swap Amounts (FOGO)</h4>
+              <div class="form-row">
+                <label>Min SELL Amount</label>
+                <input type="number" id="random-sell-min" class="input" value="10" min="1">
+                <span class="hint">Minimum FOGO to sell per cycle</span>
+              </div>
+              <div class="form-row">
+                <label>Max SELL Amount</label>
+                <input type="number" id="random-sell-max" class="input" value="20" min="1">
+                <span class="hint">Maximum FOGO to sell per cycle</span>
+              </div>
+              <div class="info-box" id="swap-amount-hint">
+                💡 SELL: Random amount between Min-Max | BUY: Max iFOGO balance
+              </div>
+            </div>
+
+            <!-- Slippage & Gas -->
+            <div class="settings-group">
+              <h4>Transaction Settings</h4>
+              <div class="form-row">
+                <label>Slippage (BPS)</label>
+                <input type="number" id="slippage-bps" class="input" value="50" min="10" max="1000">
+                <span class="hint">50 = 0.5%</span>
+              </div>
+              <div class="form-row">
+                <label>Gas Reserve (lamports)</label>
+                <input type="number" id="gas-reserve" class="input" value="10000000">
+                <span class="hint">0.01 FOGO reserved for fees</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Tab -->
+      <div id="report-tab" class="tab-content">
+        <div class="report-section">
+          <div class="section-header">
+            <h3>📊 Transaction Report</h3>
+            <button id="refresh-report-btn" class="btn btn-primary">🔄 Refresh</button>
+          </div>
+          
+          <!-- Summary Cards -->
+          <div id="report-summary" class="stats-grid" style="margin-bottom: 1rem;">
+            <div class="stat-card">
+              <div class="stat-label">Total Wallets</div>
+              <div id="report-total-wallets" class="stat-value">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Swaps</div>
+              <div id="report-total-swaps" class="stat-value">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total FOGO Volume</div>
+              <div id="report-total-sell" class="stat-value">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label" id="report-buy-label">Total iFOGO Volume</div>
+              <div id="report-total-buy" class="stat-value">-</div>
+            </div>
+            <div class="stat-card" title="P&L can be positive if iFOGO price increased during swaps">
+              <div class="stat-label">Total P&L ℹ️</div>
+              <div id="report-total-pnl" class="stat-value">-</div>
+              <span class="hint">+ = iFOGO up | - = fees</span>
+            </div>
+          </div>
+
+          <!-- Report Table -->
+          <div class="report-table-container">
+            <table id="report-table" class="report-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Address</th>
+                  <th>Swaps</th>
+                  <th>✓ Success</th>
+                  <th>✗ Failed</th>
+                  <th>FOGO Volume (SELL)</th>
+                  <th>iFOGO Volume (BUY)</th>
+                  <th>P&L (FOGO)</th>
+                </tr>
+              </thead>
+              <tbody id="report-tbody">
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Raw Report (collapsible) -->
+          <details class="raw-report">
+            <summary>📄 View Raw Report</summary>
+            <pre id="report-content">No report available yet. Run the bot first.</pre>
+          </details>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
